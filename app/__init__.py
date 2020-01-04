@@ -6,7 +6,10 @@ A web application using Flask API to be consumed by a React client
 import os
 import logging
 from logging.handlers import RotatingFileHandler
+
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
 
 from config import config_list
 
@@ -19,11 +22,14 @@ if env_ in config_list:
 else:
     raise EnvironmentError('Cannot find environment config')
 
+db = SQLAlchemy()
 
 def create_app(config_class: object = config_val):
     """Create and configure the instance of the application."""
     app = Flask(__name__)
     app.config.from_object(config_class)
+
+    db.init_app(app)
 
     # Set up file logging
     if not os.path.exists('logs'):

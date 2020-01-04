@@ -18,6 +18,12 @@ class Config(object):
 
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'development secret'
 
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        'DATABASE_URI'
+    ) or 'mysql+pymysql://dbadmin:password@localhost/react_flask'
+
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
     SITE_NAME = 'React-Flask'
 
 
