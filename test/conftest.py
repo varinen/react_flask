@@ -57,3 +57,23 @@ def clean_up_existing_users(app):
             db.session.commit()
 
     return clean_up_users(app)
+
+
+@pytest.fixture
+def add_user():
+    """Add a user."""
+
+    def _add_user(username, email, password='password', *args, **kwargs):
+        user = User.query.filter_by(username=username).first()
+        if user is None:
+            user = User.query.filter_by(email=email).first()
+        if user is None:
+            user = User(username=username, email=email)
+        if password is not None:
+            user.set_password(password)
+
+        db.session.add(user)
+        db.session.commit()
+        return user
+
+    return _add_user
