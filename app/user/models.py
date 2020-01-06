@@ -59,8 +59,8 @@ def create_user(username: str, email: str, password: str) -> User:
     :param email: unique email
     :param password: password of the user
     """
-    user_1 = User.query.filter_by(username=username).first()
-    user_2 = User.query.filter_by(email=email).first()
+    user_1 = get_user_by_username(username)
+    user_2 = get_user_by_email(email)
 
     if user_1 is not None:
         raise ValueError(f'Username {username} is invalid')
