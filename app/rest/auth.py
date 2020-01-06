@@ -13,8 +13,8 @@ CONST_LOGIN_MSG = 'Could not verify'
 CONST_REALM_MSG = 'Please login'
 
 
-def get_expiry_date(hours: float, now: datetime = datetime.datetime.now(
-    datetime.timezone.utc)) -> datetime:
+def get_expiry_date(hours: float, now: datetime \
+        = datetime.datetime.now(datetime.timezone.utc)) -> datetime:
     """Generate an expiry date using a number of hours."""
     return now + datetime.timedelta(hours=hours)
 
