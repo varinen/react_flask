@@ -10,6 +10,7 @@ from logging.handlers import RotatingFileHandler
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_jwt_extended import JWTManager
 
 from config import config_list
 
@@ -24,6 +25,7 @@ else:
 
 db = SQLAlchemy()
 migrate = Migrate()
+jwt = JWTManager()
 
 def create_app(config_class: object = config_val):
     """Create and configure the instance of the application."""
@@ -32,6 +34,10 @@ def create_app(config_class: object = config_val):
 
     db.init_app(app)
     migrate.init_app(app, db)
+    jwt.init_app(app)
+
+    from app.rest import bp as rest_bp
+    app.register_blueprint(rest_bp)
 
     # Set up file logging
     if not os.path.exists('logs'):

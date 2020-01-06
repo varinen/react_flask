@@ -18,6 +18,12 @@ class Config(object):
 
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'development secret'
 
+    JWT_SECRET_KEY = SECRET_KEY
+    JWT_ACCESS_TOKEN_EXPIRES_HRS = os.environ.get(
+        'JWT_ACCESS_TOKEN_EXPIRES_HRS') or 6
+
+    JWT_REFRESH_TOKEN_EXPIRES_HRS = JWT_ACCESS_TOKEN_EXPIRES_HRS + 1
+
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         'DATABASE_URI'
     ) or 'mysql+pymysql://dbadmin:password@localhost/react_flask'
