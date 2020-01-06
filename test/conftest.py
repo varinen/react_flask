@@ -5,7 +5,7 @@ import pytest
 import tempfile
 from flask_migrate import upgrade as _upgrade
 
-from app import create_app, db
+from app import create_app, db, cli
 from config import config_list
 
 from app.user.models import User
@@ -23,6 +23,7 @@ def app():
     # disable CSRF (the regular value is ['POST', 'PUT', 'PATCH']
 
     app = create_app(config)
+    cli.register(app)
 
     # Make sure that the app in the test context has access to the migrations
     directory = os.path.abspath(os.path.join(os.path.dirname(__file__),

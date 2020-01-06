@@ -100,7 +100,6 @@ def register(app):
 
     @user.command()
     @click.argument('username')
-    @click.argument('password')
     @check_user
     def grant_admin(username: str, **kwargs):
         """Grant admin rights to a user."""
@@ -114,7 +113,6 @@ def register(app):
 
     @user.command()
     @click.argument('username')
-    @click.argument('password')
     @check_user
     def revoke_admin(username: str, **kwargs):
         """Revoke admin rights from a user."""
