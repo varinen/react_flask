@@ -59,13 +59,11 @@ def create_user(username: str, email: str, password: str) -> User:
     :param email: unique email
     :param password: password of the user
     """
-    user_1 = get_user_by_username(username)
-    user_2 = get_user_by_email(email)
 
-    if user_1 is not None:
+    if get_user_by_username(username) is not None:
         raise ValueError(f'Username {username} is invalid')
 
-    if user_2 is not None:
+    if get_user_by_email(email) is not None:
         raise ValueError(f'Email {email} is invalid')
 
     try:
