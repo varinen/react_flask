@@ -197,3 +197,29 @@ def test_toggle_admin_false(app, add_user):
 
     assert f'Revoked admin rights from the user {username}' \
            in result.output
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_toggle_admin_true_non_existing(app):
+    """Test granting a non-existing user admin rights."""
+    username = 'non_existing_user'
+    runner = app.test_cli_runner()
+
+    result = runner.invoke(
+        app.cli.commands['user'].commands['grant-admin'],
+        [username])
+
+    assert f'Username {username} is invalid' in result.output
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_toggle_admin_false_non_existing(app):
+    """Test revoking admin rights from a non-existing user."""
+    username = 'non_existing_user'
+    runner = app.test_cli_runner()
+
+    result = runner.invoke(
+        app.cli.commands['user'].commands['revoke-admin'],
+        [username])
+
+    assert f'Username {username} is invalid' in result.output
