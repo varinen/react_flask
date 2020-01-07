@@ -35,8 +35,13 @@ def login():
             'WWW-Authenticate': f'Basic realm="{CONST_REALM_MSG}"'})
 
     if user.check_password(password):
+        if user.is_admin:
+            claims = {'is_admin': True}
+        else:
+            claims = {'is_admin': False}
         result = dict(
-            access_token=create_access_token(identity=username),
+            access_token=create_access_token(identity=username,
+                                             user_claims=claims),
             access_expires=get_expiry_date(
                 current_app.config[
                     'JWT_ACCESS_TOKEN_EXPIRES_HRS']).timestamp(),
