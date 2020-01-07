@@ -86,40 +86,18 @@ def register(app):
 
     @user.command()
     @click.argument('username')
-    @click.argument('password')
-    @check_user
-    def modify_password(username: str, password: str, **kwargs):
-        """Modify a user's password."""
-        try:
-            user_ = kwargs['user']
-            modify_user(user_, {'password': password})
-            print(
-                f'Modified password for the user {username}')
-        except ValueError as err:
-            print(str(err))
-
-    @user.command()
-    @click.argument('username')
     @check_user
     def grant_admin(username: str, **kwargs):
         """Grant admin rights to a user."""
-        try:
-            user_ = kwargs['user']
-            toggle_admin(user_, True)
-            print(
-                f'Granted admin rights to the user {username}')
-        except ValueError as err:
-            print(str(err))
+        user_ = kwargs['user']
+        toggle_admin(user_, True)
+        print(f'Granted admin rights to the user {username}')
 
     @user.command()
     @click.argument('username')
     @check_user
     def revoke_admin(username: str, **kwargs):
         """Revoke admin rights from a user."""
-        try:
-            user_ = kwargs['user']
-            toggle_admin(user_, False)
-            print(
-                f'Revoked admin rights from the user {username}')
-        except ValueError as err:
-            print(str(err))
+        user_ = kwargs['user']
+        toggle_admin(user_, False)
+        print(f'Revoked admin rights from the user {username}')
