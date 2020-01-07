@@ -4,6 +4,7 @@ import os
 import pytest
 import tempfile
 from flask_migrate import upgrade as _upgrade
+from flask_jwt_extended import create_access_token
 
 from app import create_app, db, cli
 from config import config_list
@@ -60,21 +61,33 @@ def clean_up_existing_users(app):
     return clean_up_users(app)
 
 
+def _add_user(username, email, password='password', *args, **kwargs):
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        user = User.query.filter_by(email=email).first()
+    if user is None:
+        user = User(username=username, email=email)
+    if password is not None:
+        user.set_password(password)
+    db.session.add(user)
+    db.session.commit()
+    return user
+
+
 @pytest.fixture
 def add_user():
     """Add a user."""
-
-    def _add_user(username, email, password='password', *args, **kwargs):
-        user = User.query.filter_by(username=username).first()
-        if user is None:
-            user = User.query.filter_by(email=email).first()
-        if user is None:
-            user = User(username=username, email=email)
-        if password is not None:
-            user.set_password(password)
-
-        db.session.add(user)
-        db.session.commit()
-        return user
-
     return _add_user
+
+
+@pytest.fixture
+def auth_headers():
+    """Create a headers list with an access token for a default user."""
+
+    def _auth_headers(claims={'is_admin': False}):
+        user = _add_user('default_user', 'default_user@email.com', 'password')
+        token = create_access_token(identity=user.username, user_claims=claims)
+        headers = {'Authorization': 'Bearer {}'.format(token)}
+        return headers
+
+    return _auth_headers

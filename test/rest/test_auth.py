@@ -1,4 +1,4 @@
-"""Tests for the Auth module."""
+"""Tests for the Auth REST module."""
 
 import pytest
 import datetime

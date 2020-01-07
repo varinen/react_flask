@@ -1,11 +1,13 @@
 """REST Auth API."""
 
 import datetime
+from datetime import datetime as dt
 from flask_jwt_extended import create_access_token, create_refresh_token, \
     jwt_refresh_token_required, get_jwt_identity
 
 from flask import request, make_response, jsonify, current_app
 
+from app import db
 from app.rest import bp
 from app.user.models import get_user_by_username
 
@@ -39,6 +41,11 @@ def login():
             claims = {'is_admin': True}
         else:
             claims = {'is_admin': False}
+
+        user.last_seen = dt.utcnow()
+        db.session.add(user)
+        db.session.commit()
+
         result = dict(
             access_token=create_access_token(identity=username,
                                              user_claims=claims),
