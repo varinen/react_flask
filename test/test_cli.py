@@ -1,7 +1,6 @@
 """Testing the  CLI part of the application."""
 
 import pytest
-from app import db
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')
@@ -133,10 +132,7 @@ def test_modify_password_invalid(app, add_user):
     invalid_password = ' '
     original_password = 'password'
     with app.app_context():
-        user = add_user(username, email)
-        user.set_password(original_password)
-        db.session.add(user)
-        db.session.commit()
+        add_user(username, email, original_password)
 
     runner = app.test_cli_runner()
 
@@ -155,10 +151,7 @@ def test_modify_password(app, add_user):
     original_password = 'password'
     valid_password = 'new_password'
     with app.app_context():
-        user = add_user(username, email)
-        user.set_password(original_password)
-        db.session.add(user)
-        db.session.commit()
+        user = add_user(username, email, original_password)
 
     runner = app.test_cli_runner()
 

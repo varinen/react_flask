@@ -61,19 +61,19 @@ def create_user(username: str, email: str, password: str) -> User:
     """
 
     if get_user_by_username(username) is not None:
-        raise ValueError(f'Username {username} is invalid')
+        raise ValueError(f'Username {username} is taken')
 
     if get_user_by_email(email) is not None:
-        raise ValueError(f'Email {email} is invalid')
+        raise ValueError(f'Email {email} is taken')
 
     try:
         validate_email(email)
     except EmailNotValidError as e:
         current_app.logger.error(str(e))
-        raise ValueError('User data invalid')
+        raise ValueError(f'Email {email} is invalid')
 
     if not password.strip() or not username.strip():
-        raise ValueError('User data invalid')
+        raise ValueError('Password cannot be empty')
 
     new_user = User()
     new_user.username = username

@@ -89,6 +89,62 @@ def test_create_user(app):
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')
+def test_create_user_existing_name(app, add_user):
+    """Test the creation of a user when the username is taken."""
+    email = 'email@test.com'
+    username = 'username'
+    password = 'password'
+    with app.app_context():
+        add_user(username, email, password)
+
+    with app.test_request_context():
+        with pytest.raises(ValueError) as err:
+            create_user(username, 'some@email.com', password)
+        assert str(err.value) == f'Username {username} is taken'
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_create_user_existing_email(app, add_user):
+    """Test the creation of a user when the email is taken."""
+    email = 'email@test.com'
+    username = 'username'
+    password = 'password'
+    with app.app_context():
+        add_user(username, email, password)
+
+    with app.test_request_context():
+        with pytest.raises(ValueError) as err:
+            create_user('some_other_name', email, password)
+        assert str(err.value) == f'Email {email} is taken'
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_create_user_email_invalid(app):
+    """Test the creation of a user when the email is invalid."""
+    email = 'invalid_email'
+    username = 'username'
+    password = 'password'
+
+    with app.test_request_context():
+        with pytest.raises(ValueError) as err:
+            create_user(username, email, password)
+        assert str(err.value) == f'Email {email} is invalid'
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_create_user_empty_password(app):
+    """Test the creation of a user when the email is taken."""
+    email = 'email@test.com'
+    username = 'username'
+    password = ''
+
+    with app.test_request_context():
+        with pytest.raises(ValueError) as err:
+            create_user(username, email, password)
+        assert str(err.value) == f'Password cannot be empty'
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
 def test_modify_user_username_empty(app, add_user):
     """Test modifying an exiting user with an empty username."""
     with app.app_context():
