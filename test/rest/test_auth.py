@@ -1,4 +1,4 @@
-"""Tests the routes for the Auth module."""
+"""Tests for the Auth module."""
 
 import pytest
 import datetime
@@ -46,8 +46,8 @@ def test_auth_login_valid_user_wrong_pwd(app, client, add_user):
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')
-def test_auth_login_valid_user_wrong_pwd(app, client, add_user):
-    """Check application login process fail with an invalid password."""
+def test_auth_login_valid_user_valid_pwd(app, client, add_user):
+    """Check application login success."""
     with app.test_request_context():
         add_user('someuser', 'some@email.com', 'password')
         url = url_for('rest.login')
