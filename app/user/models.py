@@ -93,9 +93,12 @@ def create_user(username: str, email: str, password: str) -> User:
 def modify_user(user: User, values: dict) -> User:
     """Modify the user."""
     for _property, value in iter(values.items()):
+        if not value or not value.strip():
+            raise ValueError(f'{_property.capitalize()} cannot be empty')
+
         if _property == 'username':
             check_user = get_user_by_username(value)
-            if value.strip() and (not check_user or check_user.id == user.id):
+            if not check_user or check_user.id == user.id:
                 user.username = value
             else:
                 raise ValueError(f'Username {value} is invalid')
@@ -109,16 +112,13 @@ def modify_user(user: User, values: dict) -> User:
                 raise ValueError(f'Email {value} is invalid')
 
             check_user = get_user_by_email(value)
-            if value.strip() and (not check_user or check_user.id == user.id):
+            if not check_user or check_user.id == user.id:
                 user.email = value
             else:
                 raise ValueError(f'Email {value} is invalid')
 
         elif _property == 'password':
-            if value.strip():
-                user.set_password(value)
-            else:
-                raise ValueError(f'Password cannot be empty')
+            user.set_password(value)
 
     db.session.add(user)
     db.session.commit()
