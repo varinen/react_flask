@@ -13,7 +13,7 @@ from flask_jwt_extended import (
 from app import db
 from app.rest import bp
 from app.user.models import get_user_by_username, create_user, modify_user, \
-    User
+    User, toggle_admin
 
 CONST_UNAUTHORISED = 'Missing permissions'
 STATUS_ERROR = 'error'
@@ -96,6 +96,41 @@ def user_modify():
         updated_user = modify_user(user_to_edit, modify)
         result = dict(user_id=updated_user.id, username=updated_user.username,
                       email=updated_user.email, is_admin=updated_user.is_admin)
+
+    except ValueError as ex:
+        current_app.logger.error(str(ex))
+        status = 500
+        result = dict(status=STATUS_ERROR, error_message=str(ex))
+
+    return jsonify(result), status
+
+
+@bp.route('/user/admin', methods=['PUT'])
+@jwt_required
+@json_required
+def user_admin():
+    """Process the route to toggle the admin status of a user."""
+    status = 200
+
+    username = request.json.get('username', None)
+    value = bool(request.json.get('value', False))
+
+    try:
+        user_to_edit = get_user_by_username(username)
+        if not user_to_edit:
+            raise ValueError(f'Username {username} is invalid')
+
+        claims = get_jwt_claims()
+        user = get_user_by_username(get_jwt_identity())
+
+        if user.id == user_to_edit.id:
+            raise ValueError('Cannot edit one\'s own admin status')
+
+        if not claims['is_admin']:
+            return make_response(CONST_UNAUTHORISED, 401)
+
+        toggle_admin(user_to_edit, value)
+        result = dict(user_id=user_to_edit.id, is_admin=user_to_edit.is_admin)
 
     except ValueError as ex:
         current_app.logger.error(str(ex))

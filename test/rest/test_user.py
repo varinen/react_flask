@@ -221,6 +221,102 @@ def test_user_admin_modify_user_invalid_username(app, client, auth_headers,
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')
+def test_user_admin_modify_admin_self(app, client, auth_headers):
+    """Check that an admin user cannot change own admin status."""
+    with app.test_request_context():
+        headers = auth_headers({'is_admin': True})
+
+        user_data = dict(username='default_user', value=True)
+
+        response = client.put(url_for('rest.user_admin'), json=user_data,
+                              headers=headers)
+
+        assert response.status_code == 500
+        assert 'Cannot edit one\'s own admin status' in response.json.get(
+            'error_message')
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_user_no_admin_modify_admin_self(app, client, auth_headers):
+    """Check that a non-admin user cannot change own admin status."""
+    with app.test_request_context():
+        headers = auth_headers({'is_admin': False})
+
+        user_data = dict(username='default_user', value=True)
+
+        response = client.put(url_for('rest.user_admin'), json=user_data,
+                              headers=headers)
+
+        assert response.status_code == 500
+        assert 'Cannot edit one\'s own admin status' in response.json.get(
+            'error_message')
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_user_no_admin_modify_admin_other(app, client, auth_headers, add_user):
+    """Check that a non-admin user cannot change other's admin status."""
+    with app.test_request_context():
+        # user that edits is 'default_user', his token is in the headers
+        headers = auth_headers({'is_admin': False})
+
+        # user that needs to be edited
+        user_to_edit = add_user('other_user', 'other_user@email.com')
+
+        user_data = dict(username=user_to_edit.username, value=True)
+
+        response = client.put(url_for('rest.user_admin'), json=user_data,
+                              headers=headers)
+
+        assert response.status_code == 401
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_user_admin_modify_admin_non_existing(app, client, auth_headers):
+    """Check that an admin can't change a non-existing user's admin rights."""
+    with app.test_request_context():
+        # user that edits is 'default_user', his token is in the headers
+        headers = auth_headers({'is_admin': True})
+
+        user_data = dict(username='other_user', value=True)
+
+        response = client.put(url_for('rest.user_admin'), json=user_data,
+                              headers=headers)
+
+        assert response.status_code == 500
+        assert 'Username other_user is invalid' in response.json.get(
+            'error_message')
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_user_admin_modify_admin(app, client, auth_headers, add_user):
+    """Check that a admin user can change other's admin status."""
+    with app.test_request_context():
+        # user that edits is 'default_user', his token is in the headers
+        headers = auth_headers({'is_admin': True})
+
+        # user that needs to be edited
+        user_to_edit = add_user('other_user', 'other_user@email.com')
+
+        user_data = dict(username=user_to_edit.username, value=True)
+
+        response = client.put(url_for('rest.user_admin'), json=user_data,
+                              headers=headers)
+
+        assert response.status_code == 200
+        assert response.json.get('user_id') == user_to_edit.id
+        assert response.json.get('is_admin')
+
+        user_data = dict(username=user_to_edit.username, value=False)
+
+        response = client.put(url_for('rest.user_admin'), json=user_data,
+                              headers=headers)
+
+        assert response.status_code == 200
+        assert response.json.get('user_id') == user_to_edit.id
+        assert response.json.get('is_admin') == False
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
 def test_user_get_user_not_found(app, client, auth_headers):
     """Check retrieving non-existing user."""
     with app.test_request_context():
