@@ -133,7 +133,7 @@ def test_create_user_email_invalid(app):
 
 @pytest.mark.usefixtures('clean_up_existing_users')
 def test_create_user_empty_password(app):
-    """Test the creation of a user when the email is taken."""
+    """Test the creation of a user when the password is empty."""
     email = 'email@test.com'
     username = 'username'
     password = ''
