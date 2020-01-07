@@ -59,9 +59,14 @@ def create_user(username: str, email: str, password: str) -> User:
     :param email: unique email
     :param password: password of the user
     """
+    if not username or not username.strip():
+        raise ValueError(f'Username cannot be empty')
 
     if get_user_by_username(username) is not None:
         raise ValueError(f'Username {username} is taken')
+
+    if not email or not email.strip():
+        raise ValueError(f'Email cannot be empty')
 
     if get_user_by_email(email) is not None:
         raise ValueError(f'Email {email} is taken')
@@ -72,7 +77,7 @@ def create_user(username: str, email: str, password: str) -> User:
         current_app.logger.error(str(e))
         raise ValueError(f'Email {email} is invalid')
 
-    if not password.strip() or not username.strip():
+    if not password or not password.strip():
         raise ValueError('Password cannot be empty')
 
     new_user = User()
