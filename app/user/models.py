@@ -7,6 +7,9 @@ from email_validator import validate_email, EmailNotValidError
 from flask import current_app
 
 from app import db
+from app.utils import apply_filter
+
+USERS_PER_PAGE = 10
 
 
 class User(db.Model):
@@ -132,3 +135,17 @@ def toggle_admin(user: User, status: bool = False) -> User:
     db.session.add(user)
     db.session.commit()
     return user
+
+
+def get_users(page: int, per_page: int = USERS_PER_PAGE, filters: dict = {},
+              order: dict = {"field": "id", "dir": "asc"}):
+    users = User.query()
+    for filter in filters:
+        apply_filter(users, User, filter)
+
+    if order['dir'] == 'desc':
+        users.order_by(getattr(User, order['field']).desc())
+    else:
+        users.order_by(getattr(User, order['field']).asc())
+
+    return users.paginate(page, per_page, False)
