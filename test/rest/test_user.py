@@ -218,3 +218,58 @@ def test_user_admin_modify_user_invalid_username(app, client, auth_headers,
         assert response.status_code == 500
         assert 'Username cannot be empty' in response.json.get(
             'error_message')
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_user_get_user_not_found(app, client, auth_headers):
+    """Check retrieving non-existing user."""
+    with app.test_request_context():
+        headers = auth_headers({'is_admin': True})
+
+        user_data = {'username': 'non-existing'}
+
+        response = client.get(url_for('rest.user_get'), json=user_data,
+                              headers=headers)
+
+        assert response.status_code == 404
+        assert 'User not found' in response.json.get('error_message')
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_user_get_user_id(app, client, auth_headers, add_user):
+    """Check retrieving a user by id."""
+    with app.test_request_context():
+        headers = auth_headers({'is_admin': True})
+
+        # user that needs to be retrieved
+        user_to_get = add_user('other_user', 'other_user@email.com')
+
+        user_data = {'id': user_to_get.id}
+
+        response = client.get(url_for('rest.user_get'), json=user_data,
+                              headers=headers)
+
+        assert response.status_code == 200
+        assert user_to_get.id == response.json.get('user_id')
+        assert user_to_get.username == response.json.get('username')
+        assert user_to_get.email == response.json.get('email')
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_user_get_user_username(app, client, auth_headers, add_user):
+    """Check retrieving a user by username."""
+    with app.test_request_context():
+        headers = auth_headers({'is_admin': True})
+
+        # user that needs to be retrieved
+        user_to_get = add_user('other_user', 'other_user@email.com')
+
+        user_data = {'username': user_to_get.username}
+
+        response = client.get(url_for('rest.user_get'), json=user_data,
+                              headers=headers)
+
+        assert response.status_code == 200
+        assert user_to_get.id == response.json.get('user_id')
+        assert user_to_get.username == response.json.get('username')
+        assert user_to_get.email == response.json.get('email')

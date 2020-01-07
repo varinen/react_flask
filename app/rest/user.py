@@ -12,8 +12,8 @@ from flask_jwt_extended import (
 
 from app import db
 from app.rest import bp
-from app.rest.auth import CONST_REALM_MSG
-from app.user.models import get_user_by_username, create_user, modify_user
+from app.user.models import get_user_by_username, create_user, modify_user, \
+    User
 
 CONST_UNAUTHORISED = 'Missing permissions'
 STATUS_ERROR = 'error'
@@ -95,7 +95,7 @@ def user_modify():
 
         updated_user = modify_user(user_to_edit, modify)
         result = dict(user_id=updated_user.id, username=updated_user.username,
-                      email=updated_user.email)
+                      email=updated_user.email, is_admin=updated_user.is_admin)
 
     except ValueError as ex:
         current_app.logger.error(str(ex))
@@ -104,3 +104,28 @@ def user_modify():
 
     return jsonify(result), status
 
+
+@bp.route('/user', methods=['GET'])
+@jwt_required
+@json_required
+def user_get():
+    """Process the route to get a single user."""
+    status = 200
+
+    id_ = request.json.get('id', None)
+    username = request.json.get('username', None)
+
+    user = None
+    if id_:
+        user = User.query.get(id_)
+    if not user and username:
+        user = get_user_by_username(username)
+
+    if not user:
+        status = 404
+        result = dict(status=STATUS_ERROR, error_message="User not found")
+    else:
+        result = dict(user_id=user.id, username=user.username,
+                      email=user.email, is_admin=user.is_admin)
+
+    return jsonify(result), status
