@@ -77,7 +77,7 @@ def test_create_user(app):
     username = 'username'
     password = 'password'
 
-    with app.test_request_context():
+    with app.app_context():
         new_user = create_user(username, email, password)
         new_user_id = new_user.id
         assert new_user.username == username
@@ -97,7 +97,7 @@ def test_create_user_existing_name(app, add_user):
     with app.app_context():
         add_user(username, email, password)
 
-    with app.test_request_context():
+    with app.app_context():
         with pytest.raises(ValueError) as err:
             create_user(username, 'some@email.com', password)
         assert str(err.value) == f'Username {username} is taken'
@@ -112,7 +112,7 @@ def test_create_user_existing_email(app, add_user):
     with app.app_context():
         add_user(username, email, password)
 
-    with app.test_request_context():
+    with app.app_context():
         with pytest.raises(ValueError) as err:
             create_user('some_other_name', email, password)
         assert str(err.value) == f'Email {email} is taken'
@@ -125,10 +125,36 @@ def test_create_user_email_invalid(app):
     username = 'username'
     password = 'password'
 
-    with app.test_request_context():
+    with app.app_context():
         with pytest.raises(ValueError) as err:
             create_user(username, email, password)
         assert str(err.value) == f'Email {email} is invalid'
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_create_user_empty_username(app):
+    """Test the creation of a user when the username is empty."""
+    email = 'email@test.com'
+    username = ''
+    password = 'password'
+
+    with app.app_context():
+        with pytest.raises(ValueError) as err:
+            create_user(username, email, password)
+        assert str(err.value) == f'Username cannot be empty'
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_create_user_empty_email(app):
+    """Test the creation of a user when the email is empty."""
+    email = ''
+    username = 'username'
+    password = 'password'
+
+    with app.app_context():
+        with pytest.raises(ValueError) as err:
+            create_user(username, email, password)
+        assert str(err.value) == f'Email cannot be empty'
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')
@@ -138,7 +164,7 @@ def test_create_user_empty_password(app):
     username = 'username'
     password = ''
 
-    with app.test_request_context():
+    with app.app_context():
         with pytest.raises(ValueError) as err:
             create_user(username, email, password)
         assert str(err.value) == f'Password cannot be empty'
