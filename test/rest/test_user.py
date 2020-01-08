@@ -456,6 +456,7 @@ def test_get_users_no_filter(app, client, auth_headers, add_ten_users):
         assert response.json.get('page') == 2
         assert response.json.get('pages') == 4
         assert response.json.get('prev_num') == 1
+        assert response.json.get('total') == 11
         assert len(response.json.get('user_list')) == 3
 
 

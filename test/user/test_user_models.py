@@ -275,7 +275,7 @@ def test_toggle_admin_false(app, add_user):
 
 @pytest.mark.usefixtures('clean_up_existing_users')
 def test_get_users_no_filter_default_sort(app):
-    """Test getting a paged list of users without a filter or a sort."""
+    """Test getting a paged list of users without a filter."""
     with app.app_context():
         users = get_users(1, 5)
         assert users.page == 1
@@ -312,8 +312,8 @@ def test_get_users_ten_filter_id(app, add_ten_users):
     """Test getting a paged list of users filtered by a username."""
     with app.app_context():
         add_ten_users()
-        filter = [dict(column='id', type='geq', value=5)]
-        users = get_users(2, 3, filter, dict(column='id', dir='desc'))
+        filters = [dict(column='id', type='geq', value=5)]
+        users = get_users(2, 3, filters, dict(column='id', dir='desc'))
         assert len(users.items) == 3
         assert not users.has_next
         assert users.has_prev
