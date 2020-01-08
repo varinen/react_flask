@@ -1,30 +1,10 @@
 """Tests for the User models module."""
 
+import math
 import pytest
 from app import db
 from app.user.models import User, get_user_by_username, \
     get_user_by_email, create_user, modify_user, toggle_admin, get_users
-
-
-@pytest.mark.usefixtures('clean_up_existing_users')
-def test_get_users_no_filter_sort_username_desc(app):
-    """Test getting a paged list of users without a filter or a sort."""
-    with app.app_context():
-        users = get_users(1, 5, [], dict(column='username', dir='desc'))
-        assert users.page == 1
-        assert users.per_page == 5
-        assert 'ORDER BY users.username DESC' in str(users.query.statement)
-
-
-@pytest.mark.usefixtures('clean_up_existing_users')
-def test_get_users_no_filter_no_sort(app):
-    """Test getting a paged list of users without a filter or a sort."""
-    with app.app_context():
-        users = get_users(1, 5)
-        assert users.page == 1
-        assert users.per_page == 5
-        assert 'ORDER BY users.id ASC' in str(users.query.statement)
-        assert users.query.whereclause is None
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')
@@ -290,3 +270,50 @@ def test_toggle_admin_false(app, add_user):
 
         user = toggle_admin(user, False)
         assert not user.is_admin
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_get_users_no_filter_sort_username_desc(app):
+    """Test getting a paged list of users without a filter or a sort."""
+    with app.app_context():
+        users = get_users(1, 5, [], dict(column='username', dir='desc'))
+        assert users.page == 1
+        assert users.per_page == 5
+        assert 'ORDER BY users.username DESC' in str(users.query.statement)
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_get_users_no_filter_default_sort(app):
+    """Test getting a paged list of users without a filter or a sort."""
+    with app.app_context():
+        users = get_users(1, 5)
+        assert users.page == 1
+        assert users.per_page == 5
+        assert 'ORDER BY users.id ASC' in str(users.query.statement)
+        assert users.query.whereclause is None
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_get_users_ten_no_filter_sort_username_desc(app, add_ten_users):
+    """Test getting a paged list of users without a filter or a sort."""
+    with app.app_context():
+        add_ten_users()
+        users = get_users(1, 3, [], dict(column='id', dir='desc'))
+        assert len(users.items) == 3
+        assert users.items[0].id == 10
+        assert users.has_next
+        assert not users.has_prev
+        assert users.pages == math.ceil(users.total / users.per_page)
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_get_users_ten_filter_id(app, add_ten_users):
+    """Test getting a paged list of users filtered by a username."""
+    with app.app_context():
+        add_ten_users()
+        filter = [dict(column='id', type='geq', value=5)]
+        users = get_users(2, 3, filter, dict(column='id', dir='desc'))
+        assert len(users.items) == 3
+        assert not users.has_next
+        assert users.has_prev
+        assert users.total == 6
