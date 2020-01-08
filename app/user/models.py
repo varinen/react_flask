@@ -36,6 +36,22 @@ class User(db.Model):
         """Check the user password."""
         return check_password_hash(self.password_hash, password)
 
+    @staticmethod
+    def get_props() -> list:
+        """Return the properties that are available to the API."""
+        return ['id', 'username', 'email', 'is_admin', 'ts_created_at',
+                'ts_last_seen']
+
+    @property
+    def ts_last_seen(self) -> float:
+        """Return the timestamp of the last_seen time."""
+        return self.last_seen.timestamp()
+
+    @property
+    def ts_created_at(self) -> float:
+        """Return the timestamp of the created time."""
+        return self.created_at.timestamp()
+
 
 def get_user_by_username(username: str) -> Union[User, None]:
     """Get a user by username.
@@ -137,9 +153,14 @@ def toggle_admin(user: User, status: bool = False) -> User:
     return user
 
 
-def get_users(page: int, per_page: int = USERS_PER_PAGE, filters: list = [],
-              order: dict = {"column": "id", "dir": "asc"}):
+def get_users(page: int, per_page: int = USERS_PER_PAGE, filters: list = None,
+              order: dict = None):
     """Return a list of users, paged, filtered, sorted."""
+    if filters is None:
+        filters = []
+    if order is None:
+        order = {"column": "id", "dir": "asc"}
+
     users = User.query
     for filter_ in filters:
         users = apply_filter(users, User, filter_)
@@ -150,4 +171,3 @@ def get_users(page: int, per_page: int = USERS_PER_PAGE, filters: list = [],
         users = users.order_by(getattr(User, order['column']).asc())
 
     return users.paginate(page, per_page, False)
-
