@@ -13,7 +13,7 @@ from flask_jwt_extended import (
 from app import db
 from app.rest import bp
 from app.user.models import get_user_by_username, create_user, modify_user, \
-    User, toggle_admin
+    User, toggle_admin, USERS_PER_PAGE, get_users
 
 CONST_UNAUTHORISED = 'Missing permissions'
 STATUS_ERROR = 'error'
@@ -162,5 +162,33 @@ def user_get():
     else:
         result = dict(user_id=user.id, username=user.username,
                       email=user.email, is_admin=user.is_admin)
+
+    return jsonify(result), status
+
+
+@bp.route('/users', methods=['GET'])
+@jwt_required
+@json_required
+def users_get():
+    """Process the route to get a single user."""
+    status = 200
+
+    page = request.json.get('page', 1)
+    per_page = request.json.get('per_page', USERS_PER_PAGE)
+    filters = request.json.get('filters', None)
+    order = request.json.get('order', None)
+
+    users = get_users(page=page, per_page=per_page, filters=filters,
+                      order=order)
+
+    user_list = list(
+        map(lambda x: {attr: getattr(x, attr) for attr in User.get_props()},
+            users.items))
+
+    required_attrs = ['has_next', 'has_prev', 'next_num', 'page', 'pages',
+                      'per_page', 'prev_num', 'total']
+
+    result = {attr: getattr(users, attr) for attr in required_attrs}
+    result['user_list'] = user_list
 
     return jsonify(result), status
