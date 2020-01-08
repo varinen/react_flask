@@ -166,6 +166,42 @@ def user_get():
     return jsonify(result), status
 
 
+@bp.route('/user', methods=['DELETE'])
+@jwt_required
+@json_required
+def user_delete():
+    """Process the route to delete a user."""
+    status = 200
+
+    username = request.json.get('username', None)
+
+    try:
+        user_to_delete = get_user_by_username(username)
+        if not user_to_delete:
+            raise ValueError(f'Username {username} is invalid')
+
+        claims = get_jwt_claims()
+        user = get_user_by_username(get_jwt_identity())
+
+        if user.id == user_to_delete.id:
+            raise ValueError('Cannot delete one\'s own account')
+
+        if not claims['is_admin']:
+            return make_response(CONST_UNAUTHORISED, 401)
+
+        db.session.delete(user_to_delete)
+        db.session.commit()
+
+        result = dict(deleted_user_id=user_to_delete.id)
+
+    except ValueError as ex:
+        current_app.logger.error(str(ex))
+        status = 500
+        result = dict(status=STATUS_ERROR, error_message=str(ex))
+
+    return jsonify(result), status
+
+
 @bp.route('/users', methods=['GET'])
 @jwt_required
 @json_required
