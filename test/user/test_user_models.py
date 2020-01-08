@@ -2,6 +2,7 @@
 
 import math
 import pytest
+from datetime import datetime as dt
 from app import db
 from app.user.models import User, get_user_by_username, \
     get_user_by_email, create_user, modify_user, toggle_admin, get_users
@@ -317,3 +318,27 @@ def test_get_users_ten_filter_id(app, add_ten_users):
         assert not users.has_next
         assert users.has_prev
         assert users.total == 6
+
+
+def test_user_get_props(app):
+    """Test the get_props method of the user model."""
+    with app.app_context():
+        props = User.get_props()
+        assert isinstance(props, list)
+        assert len(props) > 0
+
+
+def test_user_ts_created_at(app):
+    """Test the ts_created property of the user model."""
+    with app.app_context():
+        now = dt.utcnow()
+        user = User(created_at=now)
+        assert user.ts_created_at == now.timestamp()
+
+
+def test_user_ts_last_seen(app):
+    """Test the ts_last_seen property of the user model."""
+    with app.app_context():
+        now = dt.utcnow()
+        user = User(last_seen=now)
+        assert user.ts_last_seen == now.timestamp()
