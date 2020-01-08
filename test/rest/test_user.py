@@ -369,3 +369,70 @@ def test_user_get_user_username(app, client, auth_headers, add_user):
         assert user_to_get.id == response.json.get('user_id')
         assert user_to_get.username == response.json.get('username')
         assert user_to_get.email == response.json.get('email')
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_user_delete_non_existing(app, client, auth_headers):
+    """Test a delete attempt of a non-existing account."""
+    with app.test_request_context():
+        headers = auth_headers({'is_admin': True})
+
+        user_data = {'username': 'non_existing'}
+
+        response = client.delete(url_for('rest.user_delete'), json=user_data,
+                                 headers=headers)
+
+        assert response.status_code == 500
+        assert f'Username non_existing is invalid' in response.json.get(
+            'error_message')
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_user_delete_self(app, client, auth_headers):
+    """Test a delete attempt of the admin's own account."""
+    with app.test_request_context():
+        headers = auth_headers({'is_admin': True})
+
+        user_data = {'username': 'default_user'}
+
+        response = client.delete(url_for('rest.user_delete'), json=user_data,
+                                 headers=headers)
+
+        assert response.status_code == 500
+        assert 'Cannot delete one\'s own account' in response.json.get(
+            'error_message')
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_user_delete_non_admin(app, client, auth_headers, add_user):
+    """Test a delete request by a non-admin."""
+    with app.test_request_context():
+        headers = auth_headers({'is_admin': False})
+
+        # user that needs to be deleted
+        user_to_delete = add_user('other_user', 'other_user@email.com')
+
+        user_data = {'username': user_to_delete.username}
+
+        response = client.delete(url_for('rest.user_delete'), json=user_data,
+                                 headers=headers)
+
+        assert response.status_code == 401
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_user_delete(app, client, auth_headers, add_user):
+    """Test a successful user deletion."""
+    with app.test_request_context():
+        headers = auth_headers({'is_admin': True})
+
+        # user that needs to be deleted
+        user_to_delete = add_user('other_user', 'other_user@email.com')
+
+        user_data = {'username': user_to_delete.username}
+
+        response = client.delete(url_for('rest.user_delete'), json=user_data,
+                                 headers=headers)
+
+        assert response.status_code == 200
+        assert user_to_delete.id == response.json.get('deleted_user_id')
