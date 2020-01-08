@@ -369,3 +369,75 @@ def test_user_get_user_username(app, client, auth_headers, add_user):
         assert user_to_get.id == response.json.get('user_id')
         assert user_to_get.username == response.json.get('username')
         assert user_to_get.email == response.json.get('email')
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_get_users_no_filter(app, client, auth_headers, add_ten_users):
+    """Test fetching an unfiltered user list."""
+    with app.test_request_context():
+        headers = auth_headers()
+        add_ten_users()
+        req_data = dict(page=2, per_page=3)
+
+        response = client.get(url_for('rest.users_get'), json=req_data,
+                              headers=headers)
+
+        assert response.status_code == 200
+        assert response.json.get('has_next')
+        assert response.json.get('has_prev')
+        assert response.json.get('next_num') == 3
+        assert response.json.get('page') == 2
+        assert response.json.get('pages') == 4
+        assert response.json.get('prev_num') == 1
+        assert len(response.json.get('user_list')) == 3
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_get_users_filter_id(app, client, auth_headers, add_ten_users):
+    """Test fetching a paginated list of users filtered by id."""
+    with app.test_request_context():
+        headers = auth_headers()
+        add_ten_users()
+        # there are now 11 users, the extra one is the default user created
+        # by auth_headers
+
+        # expect to fetch 7 users in 2 pages
+        req_data = dict(page=1, per_page=5,
+                        filters=[dict(column='id', type='geq', value=5)])
+
+        response = client.get(url_for('rest.users_get'), json=req_data,
+                              headers=headers)
+
+        assert response.status_code == 200
+        assert response.json.get('has_next')
+        assert not response.json.get('has_prev')
+        assert response.json.get('next_num') == 2
+        assert response.json.get('page') == 1
+        assert response.json.get('pages') == 2
+        assert response.json.get('total') == 7
+        assert not response.json.get('prev_num')
+        assert len(response.json.get('user_list')) == 5
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_get_users_empty_list(app, client, auth_headers):
+    """Test fetching an empty user list."""
+    with app.test_request_context():
+        headers = auth_headers()
+
+        req_data = dict(page=1, per_page=5,
+                        filters=[dict(column='username', type='like',
+                                      value='non-existing')])
+
+        response = client.get(url_for('rest.users_get'), json=req_data,
+                              headers=headers)
+
+        assert response.status_code == 200
+        assert not response.json.get('has_next')
+        assert not response.json.get('has_prev')
+        assert not response.json.get('next_num') == 2
+        assert response.json.get('page') == 1
+        assert response.json.get('pages') == 0
+        assert response.json.get('total') == 0
+        assert not response.json.get('prev_num')
+        assert len(response.json.get('user_list')) == 0
