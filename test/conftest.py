@@ -91,3 +91,19 @@ def auth_headers():
         return headers
 
     return _auth_headers
+
+
+@pytest.fixture
+def add_twenty_users():
+    """Creates a collection of twenty user accounts"""
+
+    def _add_twenty_users():
+        users = []
+        for i in range(0, 20):
+            username = "_".join(['username', str(i)])
+            email = "@".join([username, 'email.com'])
+            user = _add_user(username, email, 'password')
+            users.append(user)
+        return users
+
+    return _add_twenty_users
