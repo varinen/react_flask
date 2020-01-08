@@ -3,7 +3,28 @@
 import pytest
 from app import db
 from app.user.models import User, get_user_by_username, \
-    get_user_by_email, create_user, modify_user, toggle_admin
+    get_user_by_email, create_user, modify_user, toggle_admin, get_users
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_get_users_no_filter_sort_username_desc(app):
+    """Test getting a paged list of users without a filter or a sort."""
+    with app.app_context():
+        users = get_users(1, 5, [], dict(column='username', dir='desc'))
+        assert users.page == 1
+        assert users.per_page == 5
+        assert 'ORDER BY users.username DESC' in str(users.query.statement)
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_get_users_no_filter_no_sort(app):
+    """Test getting a paged list of users without a filter or a sort."""
+    with app.app_context():
+        users = get_users(1, 5)
+        assert users.page == 1
+        assert users.per_page == 5
+        assert 'ORDER BY users.id ASC' in str(users.query.statement)
+        assert users.query.whereclause is None
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')
