@@ -22,7 +22,8 @@ def apply_filter(query: BaseQuery, model: db.Model, filter_: dict):
     if 'column' in filter_ and 'value' in filter_ and 'type' in filter_:
         if filter_['type'] == 'like':
             query = query.filter(
-                getattr(model, filter_['column']).like(filter_['value']))
+                getattr(model, filter_['column']).like(
+                    "".join(['%', str(filter_['value']), '%'])))
         if filter_['type'] == 'eq':
             query = query.filter(getattr(model, filter_['column']) ==
                                  filter_['value'])
