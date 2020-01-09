@@ -5,7 +5,8 @@ import pytest
 from datetime import datetime as dt
 from app import db
 from app.user.models import User, get_user_by_username, \
-    get_user_by_email, create_user, modify_user, toggle_admin, get_users
+    get_user_by_email, create_user, modify_user, toggle_admin, get_users, \
+    get_user_details
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')
@@ -342,3 +343,15 @@ def test_user_ts_last_seen(app):
         now = dt.utcnow()
         user = User(last_seen=now)
         assert user.ts_last_seen == now.timestamp()
+
+
+def test_get_user_details(app):
+    """Test the get_user_details function."""
+    with app.app_context():
+        props = User.get_props()
+        user = User(username='someuser', email='some_email@email.com',
+                    is_admin=True, created_at=dt.utcnow(),
+                    last_seen=dt.utcnow())
+        details = get_user_details(user)
+        for key in details.keys():
+            assert key in props
