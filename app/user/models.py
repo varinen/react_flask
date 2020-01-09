@@ -171,3 +171,8 @@ def get_users(page: int, per_page: int = USERS_PER_PAGE, filters: list = None,
         users = users.order_by(getattr(User, order['column']).asc())
 
     return users.paginate(page, per_page, False)
+
+
+def get_user_details(user: User) -> dict:
+    """Return user details as a dictionary."""
+    return {attr: getattr(user, attr) for attr in User.get_props()}
