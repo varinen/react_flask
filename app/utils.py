@@ -8,7 +8,7 @@ def apply_filter(query: BaseQuery, model: db.Model, filter_: dict):
     """Apply a filter to a query.
     
     Possible filter types are:
-    - like - builds a where clause "column like 'column_value'"
+    - like - builds a where clause "column like '%column_value%'"
     - eq  - builds a where clause "column = 'column_value'"
     - geq - builds a where clause "column => 'column_value'"
     - leq - builds a where clause "column <= 'column_value'"
