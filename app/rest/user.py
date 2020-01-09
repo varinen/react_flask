@@ -13,7 +13,7 @@ from flask_jwt_extended import (
 from app import db
 from app.rest import bp
 from app.user.models import get_user_by_username, create_user, modify_user, \
-    User, toggle_admin, USERS_PER_PAGE, get_users
+    User, toggle_admin, USERS_PER_PAGE, get_users, get_user_details
 
 CONST_UNAUTHORISED = 'Missing permissions'
 STATUS_ERROR = 'error'
@@ -160,8 +160,7 @@ def user_get():
         status = 404
         result = dict(status=STATUS_ERROR, error_message="User not found")
     else:
-        result = dict(user_id=user.id, username=user.username,
-                      email=user.email, is_admin=user.is_admin)
+        result = get_user_details(user)
 
     return jsonify(result), status
 
@@ -217,9 +216,7 @@ def users_get():
     users = get_users(page=page, per_page=per_page, filters=filters,
                       order=order)
 
-    user_list = list(
-        map(lambda x: {attr: getattr(x, attr) for attr in User.get_props()},
-            users.items))
+    user_list = list(map(lambda x: get_user_details(x), users.items))
 
     required_attrs = ['has_next', 'has_prev', 'next_num', 'page', 'pages',
                       'per_page', 'prev_num', 'total']

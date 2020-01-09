@@ -346,7 +346,7 @@ def test_user_get_user_id(app, client, auth_headers, add_user):
                               headers=headers)
 
         assert response.status_code == 200
-        assert user_to_get.id == response.json.get('user_id')
+        assert user_to_get.id == response.json.get('id')
         assert user_to_get.username == response.json.get('username')
         assert user_to_get.email == response.json.get('email')
 
@@ -366,9 +366,12 @@ def test_user_get_user_username(app, client, auth_headers, add_user):
                               headers=headers)
 
         assert response.status_code == 200
-        assert user_to_get.id == response.json.get('user_id')
+        assert user_to_get.id == response.json.get('id')
         assert user_to_get.username == response.json.get('username')
         assert user_to_get.email == response.json.get('email')
+        assert 'is_admin' in response.json
+        assert 'ts_created_at' in response.json
+        assert 'ts_last_seen' in response.json
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')
