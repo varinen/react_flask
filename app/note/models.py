@@ -11,8 +11,6 @@ class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     created_by = db.Column(db.Integer, db.ForeignKey('users.id'),
                            nullable=False, index=True)
-    modified_by = db.Column(db.Integer, db.ForeignKey('users.id'),
-                            nullable=False, index=True)
 
     title = db.Column(db.String(255), index=True, default='Untitled')
     text = db.Column(db.Text, nullable=True)
@@ -22,6 +20,8 @@ class Note(db.Model):
 
     version_num = db.Column(db.Integer, nullable=False, default=1)
     versions = db.Column(db.Text, nullable=True)
+
+    author = db.relationship('User', backref='author')
 
     def __repr__(self) -> str:
         """Generate a representation of the note model."""

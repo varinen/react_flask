@@ -1,6 +1,6 @@
 """Models for the User package."""
 
-from typing import Union
+from typing import Union, List
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from email_validator import validate_email, EmailNotValidError
@@ -8,6 +8,7 @@ from flask import current_app
 
 from app import db
 from app.utils import apply_filter
+from app.note.models import Note
 
 USERS_PER_PAGE = 10
 
@@ -23,6 +24,9 @@ class User(db.Model):
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
     password_hash = db.Column(db.String(128))
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
+
+    notes_ = db.relationship('Note', backref='notes', cascade="all,delete",
+                             lazy='dynamic')
 
     def __repr__(self) -> str:
         """Generate a representation of the user model."""
@@ -51,6 +55,11 @@ class User(db.Model):
     def ts_created_at(self) -> float:
         """Return the timestamp of the created time."""
         return self.created_at.timestamp()
+
+    def get_notes(self) -> List[Note]:
+        """Returns a list of notes sorted by creation time."""
+        sorted_ = self.notes_.order_by(Note.created_at.desc())
+        return sorted_.all()
 
 
 def get_user_by_username(username: str) -> Union[User, None]:
