@@ -25,7 +25,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(128))
     is_admin = db.Column(db.Boolean, nullable=False, default=False)
 
-    notes_ = db.relationship('Note', backref='notes', cascade="all,delete",
+    notes = db.relationship('Note', backref='notes', cascade="all,delete",
                              lazy='dynamic')
 
     def __repr__(self) -> str:
@@ -58,7 +58,7 @@ class User(db.Model):
 
     def get_notes(self) -> List[Note]:
         """Returns a list of notes sorted by creation time."""
-        sorted_ = self.notes_.order_by(Note.created_at.desc())
+        sorted_ = self.notes.order_by(Note.created_at.desc())
         return sorted_.all()
 
 
