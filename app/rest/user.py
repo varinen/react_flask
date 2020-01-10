@@ -1,7 +1,5 @@
 """REST user API."""
 
-import functools
-from datetime import datetime as dt
 from flask import make_response, request, current_app, jsonify
 
 from flask_jwt_extended import (
@@ -11,41 +9,13 @@ from flask_jwt_extended import (
 )
 
 from app import db
+from app.rest.blueprint import json_required
 from app.rest import bp
 from app.user.models import get_user_by_username, create_user, modify_user, \
     User, toggle_admin, USERS_PER_PAGE, get_users, get_user_details
 
 CONST_UNAUTHORISED = 'Missing permissions'
 STATUS_ERROR = 'error'
-
-
-def json_required(fn):
-    """
-    A decorator to check for JSON content in the request
-    """
-
-    @functools.wraps(fn)
-    def wrapper(*args, **kwargs):
-        if request.is_json:
-            return fn(*args, **kwargs)
-        return make_response({'msg': 'Missing JSON in request'}, 400)
-
-    return wrapper
-
-
-@bp.after_request
-def after_request(response):
-    """Execute logic after processing a request."""
-    if response.status_code == 500:
-        return response
-    username = get_jwt_identity()
-    if username:
-        user = get_user_by_username(username)
-        if user:
-            user.last_seen = dt.utcnow()
-            db.session.add(user)
-            db.session.commit()
-    return response
 
 
 @bp.route('/user', methods=['POST'])
