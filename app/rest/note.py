@@ -37,3 +37,38 @@ def note_create():
         result = dict(error_message='Unable to create the note')
 
     return jsonify(result), status
+
+
+@bp.route('/note', methods=['PUT'])
+@jwt_required
+@json_required
+def note_update():
+    """Process the route for to update a note."""
+    status = 200
+
+    try:
+        note_id = request.json.get('id', None)
+        note = Note.query.get(note_id)
+        if not note:
+            raise ValueError('Invalid note')
+
+        title = request.json.get('title')
+        text = request.json.get('text')
+        validate_note(note.author, title)
+
+        note.title = title
+        note.text = text
+
+        db.session.add(note)
+        db.session.commit()
+
+        result = dict(note_id=note.id)
+    except ValueError as ex:
+        status = 500
+        result = dict(error_message=str(ex))
+    except Exception as ex:
+        current_app.logger.error(str(ex))
+        status = 500
+        result = dict(error_message='Unable to update the note')
+
+    return jsonify(result), status
