@@ -192,7 +192,7 @@ def test_validate_note_invalid_user():
     with pytest.raises(ValueError) as err:
         creator = User()
         validate_note(creator=creator, title='some title')
-        assert 'Invalid user' in str(err)
+    assert 'Invalid user' in str(err)
 
 
 def test_validate_note_empty_title():
@@ -200,4 +200,4 @@ def test_validate_note_empty_title():
     with pytest.raises(ValueError) as err:
         creator = User(id=1)
         validate_note(creator=creator, title='')
-        assert 'Title can\'t be empty' in str(err)
+    assert 'Title can\'t be empty' in str(err)
