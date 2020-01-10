@@ -4,7 +4,7 @@ import json
 import pytest
 from app import db
 from app.user.models import User
-from app.note.models import Note, get_current_user_name
+from app.note.models import Note, get_current_user_name, validate_note
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')
@@ -185,3 +185,19 @@ def test_note_note_load_listener(app, add_user):
 
         assert isinstance(note_loaded.old_data, dict)
         assert len(note_loaded.old_data) > 0
+
+
+def test_validate_note_invalid_user():
+    """Test the note validation with an invalid user."""
+    with pytest.raises(ValueError) as err:
+        creator = User()
+        validate_note(creator=creator, title='some title')
+        assert 'Invalid user' in str(err)
+
+
+def test_validate_note_empty_title():
+    """Test the note validation with an empty title."""
+    with pytest.raises(ValueError) as err:
+        creator = User(id=1)
+        validate_note(creator=creator, title='')
+        assert 'Title can\'t be empty' in str(err)
