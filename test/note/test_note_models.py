@@ -118,6 +118,19 @@ def test_note_version_list_non_parsable(app):
         assert note.version_list == {}
 
 
+def test_get_current_user_name():
+    """Test getting the current user name."""
+
+    def test_identity():
+        return 'test_user'
+
+    def test_identity_none():
+        return None
+
+    assert get_current_user_name(test_identity) == 'test_user'
+    assert get_current_user_name(test_identity_none) == 'system'
+
+
 def test_create_version(app):
     """Test creating the new version of a note."""
     with app.app_context():
@@ -130,19 +143,6 @@ def test_create_version(app):
         assert note.version_list['1']['text'] == 'version 1 text'
         assert 'modified_by' in note.version_list['1'].keys()
         assert 'version_at' in note.version_list['1'].keys()
-
-
-def test_get_current_user_name():
-    """Test getting the current user name."""
-
-    def test_identity():
-        return 'test_user'
-
-    def test_identity_none():
-        return None
-
-    assert get_current_user_name(test_identity) == 'test_user'
-    assert get_current_user_name(test_identity_none) == 'system'
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')
