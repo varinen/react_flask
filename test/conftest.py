@@ -10,6 +10,7 @@ from app import create_app, db, cli
 from config import config_list
 
 from app.user.models import User
+from app.note.models import Note
 
 
 @pytest.fixture(scope='module')
@@ -61,7 +62,8 @@ def clean_up_existing_users(app):
     return clean_up_users(app)
 
 
-def _add_user(username, email, password='password', *args, **kwargs):
+def _add_user(username, email, password='password') -> User:
+    """Add a user and return it or return an existing user."""
     user = User.query.filter_by(username=username).first()
     if user is None:
         user = User.query.filter_by(email=email).first()
@@ -107,3 +109,18 @@ def add_ten_users():
         return users
 
     return add_ten_users
+
+
+def _add_note(title='Some title', text='Some text') -> Note:
+    """Add a note using a default user account."""
+    user = _add_user('some_user', 'some_user@email.com')
+    note = Note(created_by=user.id, title=title, text=text)
+    db.session.add(note)
+    db.session.commit()
+    return note
+
+
+@pytest.fixture
+def add_note():
+    """Add a note."""
+    return _add_note
