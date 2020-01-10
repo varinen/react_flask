@@ -107,3 +107,14 @@ def get_current_user_name(identity):
 
 db.event.listen(db.session, 'before_commit', note_before_commit_listener)
 db.event.listen(db.session, 'loaded_as_persistent', note_load_listener)
+
+
+def validate_note(creator: db.Model, title: str) -> bool:
+    """Validate a note."""
+    if not creator or not creator.id:
+        raise ValueError('Invalid user')
+
+    if not title or not title.strip():
+        raise ValueError('Title can\'t be empty')
+
+    return True
