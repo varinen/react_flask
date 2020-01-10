@@ -82,7 +82,7 @@ def note_before_commit_listener(session):
     for updated in list(session.dirty):
         if isinstance(updated, Note):
             updated.create_version()
-            updated.modified_at = dt.utcnow()
+            updated.last_modified = dt.utcnow()
 
 
 def note_load_listener(session, instance):
