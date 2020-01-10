@@ -20,18 +20,37 @@ def test_note_create(app, add_user):
         assert user.id == note.created_by
 
 
+def test_note_repr():
+    """Test the string representation of a note model."""
+    note = Note(id=1, title='Test title')
+
+    assert '<Note Test title - 1>' == str(note)
+
+
 @pytest.mark.usefixtures('clean_up_existing_users')
-def test_note_user_notes_relationships(app, add_user):
-    """Test user notes relationship."""
+def test_note_author_user_relationships(app, add_user):
+    """Test the note's relationship to user."""
     with app.app_context():
         user = add_user('some_user', 'some_user@email.com')
         note = Note(created_by=user.id)
         db.session.add(note)
         db.session.commit()
-        note_id = note.id
 
-        notes = {note.id: note for note in user.get_notes()}
-        assert note_id in notes.keys()
+        assert isinstance(note.author, User)
+        assert note.author.id == user.id
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_note_user_notes_relationships(app, add_user):
+    """Test the user notes relationship."""
+    with app.app_context():
+        user = add_user('some_user', 'some_user@email.com')
+        assert len(user.notes.all()) == 0
+
+        note = Note(created_by=user.id)
+        db.session.add(note)
+        db.session.commit()
+        assert len(user.notes.all()) == 1
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')
@@ -55,22 +74,17 @@ def test_note_user_cascade_delete(app, add_user):
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')
-def test_note_author_user_relationships(app, add_user):
-    """Test the note's relationship to user."""
+def test_note_user_get_notes(app, add_user):
+    """Test the get_notes method of the user."""
     with app.app_context():
         user = add_user('some_user', 'some_user@email.com')
         note = Note(created_by=user.id)
         db.session.add(note)
         db.session.commit()
+        note_id = note.id
 
-        assert note.author.id == user.id
-
-
-def test_note_repr():
-    """Test the string representation of a note model."""
-    note = Note(id=1, title='Test title')
-
-    assert '<Note Test title - 1>' == str(note)
+        notes = {note.id: note for note in user.get_notes()}
+        assert note_id in notes.keys()
 
 
 def test_note_old_data():
