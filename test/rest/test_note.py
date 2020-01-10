@@ -1,4 +1,4 @@
-"""Tests for the mote REST module."""
+"""Tests for the Note REST module."""
 
 import pytest
 from flask import url_for
