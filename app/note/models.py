@@ -91,7 +91,7 @@ def note_load_listener(session, instance):
         old_data = dict(
             title=instance.title,
             text=instance.text,
-            modified_at=instance.last_modified,
+            last_modified=instance.last_modified,
             version_num=instance.version_num
         )
         instance.old_data = old_data
