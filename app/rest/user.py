@@ -9,10 +9,11 @@ from flask_jwt_extended import (
 )
 
 from app import db
+from app.utils import get_entities
 from app.rest.blueprint import json_required
 from app.rest import bp
 from app.user.models import get_user_by_username, create_user, modify_user, \
-    User, toggle_admin, USERS_PER_PAGE, get_users, get_user_details
+    User, toggle_admin, USERS_PER_PAGE, get_user_details
 
 CONST_UNAUTHORISED = 'Missing permissions'
 STATUS_ERROR = 'error'
@@ -175,15 +176,13 @@ def user_delete():
 @jwt_required
 @json_required
 def users_get():
-    """Process the route to get a single user."""
-    status = 200
-
+    """Process the route to get multiple users."""
     page = request.json.get('page', 1)
     per_page = request.json.get('per_page', USERS_PER_PAGE)
     filters = request.json.get('filters', None)
     order = request.json.get('order', None)
 
-    users = get_users(page=page, per_page=per_page, filters=filters,
+    users = get_entities(User, page=page, per_page=per_page, filters=filters,
                       order=order)
 
     user_list = list(map(lambda x: get_user_details(x), users.items))
@@ -194,4 +193,4 @@ def users_get():
     result = {attr: getattr(users, attr) for attr in required_attrs}
     result['user_list'] = user_list
 
-    return jsonify(result), status
+    return jsonify(result), 200
