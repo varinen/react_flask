@@ -34,3 +34,25 @@ def apply_filter(query: BaseQuery, model: db.Model, filter_: dict):
             query = query.filter(
                 getattr(model, filter_['column']) <= filter_['value'])
     return query
+
+
+def get_entities(entity_class: db.Model, page: int, per_page: int,
+                 filters: list = None, order: dict = None):
+    """Return a list of entities, paged, filtered, sorted."""
+    if filters is None:
+        filters = []
+    if order is None:
+        order = {"column": "id", "dir": "asc"}
+
+    entities = entity_class.query
+    for filter_ in filters:
+        entities = apply_filter(entities, entity_class, filter_)
+
+    if order['dir'] == 'desc':
+        entities = entities.order_by(
+            getattr(entity_class, order['column']).desc())
+    else:
+        entities = entities.order_by(
+            getattr(entity_class, order['column']).asc())
+
+    return entities.paginate(page, per_page, False)

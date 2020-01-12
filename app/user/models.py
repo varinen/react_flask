@@ -162,26 +162,6 @@ def toggle_admin(user: User, status: bool = False) -> User:
     return user
 
 
-def get_users(page: int, per_page: int = USERS_PER_PAGE, filters: list = None,
-              order: dict = None):
-    """Return a list of users, paged, filtered, sorted."""
-    if filters is None:
-        filters = []
-    if order is None:
-        order = {"column": "id", "dir": "asc"}
-
-    users = User.query
-    for filter_ in filters:
-        users = apply_filter(users, User, filter_)
-
-    if order['dir'] == 'desc':
-        users = users.order_by(getattr(User, order['column']).desc())
-    else:
-        users = users.order_by(getattr(User, order['column']).asc())
-
-    return users.paginate(page, per_page, False)
-
-
 def get_user_details(user: User) -> dict:
     """Return user details as a dictionary."""
     return {attr: getattr(user, attr) for attr in User.get_props()}
