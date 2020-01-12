@@ -124,3 +124,18 @@ def _add_note(title='Some title', text='Some text') -> Note:
 def add_note():
     """Add a note."""
     return _add_note
+
+
+@pytest.fixture
+def add_ten_notes():
+    """Creates a collection of ten notes"""
+
+    def add_ten_notes():
+        notes = []
+        for i in range(0, 10):
+            title = '-'.join(['Some title', str(i)])
+            text = '-'.join(['Some text', str(i)])
+            notes.append(_add_note(title=title, text=text))
+        return notes
+
+    return add_ten_notes
