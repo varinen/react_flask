@@ -72,3 +72,31 @@ def note_update():
         result = dict(error_message='Unable to update the note')
 
     return jsonify(result), status
+
+
+@bp.route('/note', methods=['DELETE'])
+@jwt_required
+@json_required
+def note_delete():
+    """Process the route for to delete a note."""
+    status = 200
+
+    try:
+        note_id = request.json.get('id', None)
+        note = Note.query.get(note_id)
+        if not note:
+            raise ValueError('Invalid note')
+
+        db.session.delete(note)
+        db.session.commit()
+
+        result = dict(note_id=note.id)
+    except ValueError as ex:
+        status = 500
+        result = dict(error_message=str(ex))
+    except Exception as ex:
+        current_app.logger.error(str(ex))
+        status = 500
+        result = dict(error_message='Unable to delete the note')
+
+    return jsonify(result), status
