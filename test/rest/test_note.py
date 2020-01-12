@@ -252,3 +252,73 @@ def test_note_get_non_existing(app, client, auth_headers):
 
         assert response.status_code == 500
         assert 'Invalid note' in response.json.get('error_message')
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_get_notes_no_filter(app, client, auth_headers, add_ten_notes):
+    """Test fetching an unfiltered note list."""
+    with app.test_request_context():
+        headers = auth_headers()
+        add_ten_notes()
+        req_data = dict(page=2, per_page=3)
+
+        response = client.get(url_for('rest.notes_get'), json=req_data,
+                              headers=headers)
+
+        assert response.status_code == 200
+        assert response.json.get('has_next')
+        assert response.json.get('has_prev')
+        assert response.json.get('next_num') == 3
+        assert response.json.get('page') == 2
+        assert response.json.get('pages') == 4
+        assert response.json.get('prev_num') == 1
+        assert response.json.get('total') == 10
+        assert len(response.json.get('note_list')) == 3
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_get_notes_filter_id(app, client, auth_headers, add_ten_notes):
+    """Test fetching a paginated list of notes filtered by id."""
+    with app.test_request_context():
+        headers = auth_headers()
+        add_ten_notes()
+        # expect to fetch 6 notes in 2 pages
+        req_data = dict(page=1, per_page=5,
+                        filters=[dict(column='id', type='geq', value=5)])
+
+        response = client.get(url_for('rest.notes_get'), json=req_data,
+                              headers=headers)
+
+        assert response.status_code == 200
+        assert response.json.get('has_next')
+        assert not response.json.get('has_prev')
+        assert response.json.get('next_num') == 2
+        assert response.json.get('page') == 1
+        assert response.json.get('pages') == 2
+        assert response.json.get('total') == 6
+        assert not response.json.get('prev_num')
+        assert len(response.json.get('note_list')) == 5
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_get_notes_empty_list(app, client, auth_headers):
+    """Test fetching an empty note list."""
+    with app.test_request_context():
+        headers = auth_headers()
+
+        req_data = dict(page=1, per_page=5,
+                        filters=[dict(column='title', type='like',
+                                      value='non-existing')])
+
+        response = client.get(url_for('rest.notes_get'), json=req_data,
+                              headers=headers)
+
+        assert response.status_code == 200
+        assert not response.json.get('has_next')
+        assert not response.json.get('has_prev')
+        assert not response.json.get('next_num')
+        assert response.json.get('page') == 1
+        assert response.json.get('pages') == 0
+        assert response.json.get('total') == 0
+        assert not response.json.get('prev_num')
+        assert len(response.json.get('note_list')) == 0
