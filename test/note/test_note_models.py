@@ -1,10 +1,12 @@
 """Test the Note package"""
 
+from datetime import datetime as dt
 import json
 import pytest
 from app import db
 from app.user.models import User
-from app.note.models import Note, get_current_user_name, validate_note
+from app.note.models import Note, get_current_user_name, validate_note, \
+    get_note_details
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')
@@ -201,3 +203,19 @@ def test_validate_note_empty_title():
         creator = User(id=1)
         validate_note(creator=creator, title='')
     assert 'Title can\'t be empty' in str(err)
+
+
+def test_get_note_details():
+    """Test the get_note_details_function."""
+    now = dt.utcnow()
+    note = Note(created_by=1, created_at=now, last_modified=now, version_num=2,
+                title="some title", text='some text')
+    note.versions = json.dumps({1: {'title': 'prev title'}})
+
+    details = get_note_details(note)
+    assert details['created_by'] == 1
+    assert details['created_at'] == now.timestamp()
+    assert details['last_modified'] == now.timestamp()
+    assert details['version_num'] == 2
+    assert len(details['version_list']) == 1
+    assert '1' in details['version_list'].keys()
