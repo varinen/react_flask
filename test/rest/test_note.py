@@ -178,14 +178,13 @@ def test_note_delete(app, client, add_note, auth_headers):
 @pytest.mark.usefixtures('clean_up_existing_users')
 def test_note_delete_non_existing(app, client, auth_headers):
     """Check deleting a non-existing note."""
-
     with app.test_request_context():
         note_data = dict(id=100000)
 
         headers = auth_headers()
 
         response = client.delete(url_for('rest.note_delete'), json=note_data,
-                              headers=headers)
+                                 headers=headers)
 
         assert response.status_code == 500
         assert 'Invalid note' in response.json.get('error_message')
@@ -211,8 +210,45 @@ def test_note_delete_exception(app, client, add_note, auth_headers,
         monkeypatch.setattr(db.session, 'commit', mock_commit)
 
         response = client.delete(url_for('rest.note_delete'), json=note_data,
-                              headers=headers)
+                                 headers=headers)
 
         assert response.status_code == 500
         assert 'Unable to delete the note' in response.json.get(
             'error_message')
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_note_get_single(app, client, add_note, auth_headers):
+    """Check getting a single a note."""
+    with app.app_context():
+        note = add_note('Some title', 'some text')
+        note_id = note.id
+
+    with app.test_request_context():
+        note_data = dict(id=note_id)
+
+        headers = auth_headers()
+
+        response = client.get(url_for('rest.note_get'), json=note_data,
+                              headers=headers)
+
+        expected_keys = ['id', 'created_by', 'created_at', 'last_modified',
+                         'title', 'text', 'version_num', 'version_list']
+        assert response.status_code == 200
+        for key in expected_keys:
+            assert key in response.json
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_note_get_non_existing(app, client, auth_headers):
+    """Check getting a non-existing note."""
+    with app.test_request_context():
+        note_data = dict(id=100000)
+
+        headers = auth_headers()
+
+        response = client.get(url_for('rest.note_delete'), json=note_data,
+                              headers=headers)
+
+        assert response.status_code == 500
+        assert 'Invalid note' in response.json.get('error_message')
