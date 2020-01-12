@@ -6,7 +6,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
 from app.rest import bp
 from app.rest.blueprint import json_required
-from app.note.models import Note, validate_note
+from app.note.models import Note, validate_note, get_note_details
 from app.user.models import get_user_by_username
 
 
@@ -98,5 +98,27 @@ def note_delete():
         current_app.logger.error(str(ex))
         status = 500
         result = dict(error_message='Unable to delete the note')
+
+    return jsonify(result), status
+
+
+@bp.route('/note', methods=['GET'])
+@jwt_required
+@json_required
+def note_get():
+    """Process the route for to get a single note."""
+    status = 200
+
+    try:
+        note_id = request.json.get('id', None)
+        note = Note.query.get(note_id)
+        if not note:
+            raise ValueError('Invalid note')
+
+        note = Note.query.get(note_id)
+        result = get_note_details(note)
+    except ValueError as ex:
+        status = 500
+        result = dict(error_message=str(ex))
 
     return jsonify(result), status
