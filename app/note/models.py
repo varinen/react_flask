@@ -97,7 +97,7 @@ def note_load_listener(session, instance):
         instance.old_data = old_data
 
 
-def get_current_user_name(identity):
+def get_current_user_name(identity) -> str:
     """Try to get the current user name."""
     username = identity()
     if not username:
@@ -118,3 +118,17 @@ def validate_note(creator: db.Model, title: str) -> bool:
         raise ValueError('Title can\'t be empty')
 
     return True
+
+
+def get_note_details(note: Note) -> dict:
+    """Return a dict of note properties."""
+    return dict(
+        id=note.id,
+        title=note.title,
+        text=note.text,
+        created_by=note.created_by,
+        version_num=note.version_num,
+        created_at=note.created_at.timestamp(),
+        last_modified=note.last_modified.timestamp(),
+        version_list=note.version_list
+    )
