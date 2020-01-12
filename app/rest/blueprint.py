@@ -13,9 +13,7 @@ bp = Blueprint('rest', __name__)
 
 
 def json_required(fn):
-    """
-    A decorator to check for JSON content in the request
-    """
+    """Check for JSON content in the request."""
 
     @functools.wraps(fn)
     def wrapper(*args, **kwargs):

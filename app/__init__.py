@@ -1,4 +1,4 @@
-"""React-Flask
+"""React-Flask.
 
 A web application using Flask API to be consumed by a React client
 """

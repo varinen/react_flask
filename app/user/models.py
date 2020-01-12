@@ -57,7 +57,7 @@ class User(db.Model):
         return self.created_at.timestamp()
 
     def get_notes(self) -> List[Note]:
-        """Returns a list of notes sorted by creation time."""
+        """Return a list of notes sorted by creation time."""
         sorted_ = self.notes.order_by(Note.created_at.desc())
         return sorted_.all()
 

@@ -18,7 +18,6 @@ def apply_filter(query: BaseQuery, model: db.Model, filter_: dict):
     - type - one of the four types described above
     - value - a value to filter the column by.
     """
-
     if 'column' in filter_ and 'value' in filter_ and 'type' in filter_:
         if filter_['type'] == 'like':
             query = query.filter(
