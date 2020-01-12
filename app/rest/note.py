@@ -4,10 +4,13 @@ from flask import request, current_app, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from app import db
+from app.utils import get_entities
 from app.rest import bp
 from app.rest.blueprint import json_required
 from app.note.models import Note, validate_note, get_note_details
 from app.user.models import get_user_by_username
+
+NOTES_PER_PAGE = 10
 
 
 @bp.route('/note', methods=['POST'])
@@ -122,3 +125,27 @@ def note_get():
         result = dict(error_message=str(ex))
 
     return jsonify(result), status
+
+
+@bp.route('/notes', methods=['GET'])
+@jwt_required
+@json_required
+def notes_get():
+    """Process the route to get multiple notes."""
+    page = request.json.get('page', 1)
+    per_page = request.json.get('per_page', NOTES_PER_PAGE)
+    filters = request.json.get('filters', None)
+    order = request.json.get('order', None)
+
+    notes = get_entities(Note, page=page, per_page=per_page, filters=filters,
+                         order=order)
+
+    note_list = list(map(lambda x: get_note_details(x), notes.items))
+
+    required_attrs = ['has_next', 'has_prev', 'next_num', 'page', 'pages',
+                      'per_page', 'prev_num', 'total']
+
+    result = {attr: getattr(notes, attr) for attr in required_attrs}
+    result['note_list'] = note_list
+
+    return jsonify(result), 200
