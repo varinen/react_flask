@@ -10,7 +10,7 @@ from flask_cors import cross_origin
 
 from app import db
 from app.rest import bp
-from app.user.models import get_user_by_username
+from app.user.models import get_user_by_username, get_user_details
 
 CONST_LOGIN_MSG = 'Could not verify'
 CONST_REALM_MSG = 'Please login'
@@ -57,7 +57,8 @@ def login():
             refresh_expires=get_expiry_date(
                 current_app.config[
                     'JWT_REFRESH_TOKEN_EXPIRES_HRS']).timestamp(),
-            refresh_token=create_refresh_token(identity=username)
+            refresh_token=create_refresh_token(identity=username),
+            user=get_user_details(user)
         )
 
         return jsonify(dict(result)), 200
