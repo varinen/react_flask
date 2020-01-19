@@ -111,15 +111,14 @@ def user_admin():
     return jsonify(result), status
 
 
-@bp.route('/user', methods=['GET'])
+@bp.route('/user', methods=['GET', 'OPTIONS'])
 @jwt_required
-@json_required
 def user_get():
     """Process the route to get a single user."""
     status = 200
 
-    id_ = request.json.get('id', None)
-    username = request.json.get('username', None)
+    id_ = request.args.get('id', None)
+    username = request.args.get('username', None)
 
     user = None
     if id_:
@@ -183,7 +182,7 @@ def users_get():
     order = request.json.get('order', None)
 
     users = get_entities(User, page=page, per_page=per_page, filters=filters,
-                      order=order)
+                         order=order)
 
     user_list = list(map(lambda x: get_user_details(x), users.items))
 

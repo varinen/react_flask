@@ -6,7 +6,6 @@ from flask_jwt_extended import create_access_token, create_refresh_token, \
     jwt_refresh_token_required, get_jwt_identity
 
 from flask import request, make_response, jsonify, current_app
-from flask_cors import cross_origin
 
 from app import db
 from app.rest import bp
@@ -23,7 +22,6 @@ def get_expiry_date(hours: float, now: datetime \
 
 
 @bp.route('/auth/login', methods=['POST'])
-@cross_origin()
 def login():
     """Process the login POST request."""
     if not request.is_json:
