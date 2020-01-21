@@ -111,15 +111,14 @@ def user_admin():
     return jsonify(result), status
 
 
-@bp.route('/user', methods=['GET'])
+@bp.route('/user', methods=['GET', 'OPTIONS'])
 @jwt_required
-@json_required
 def user_get():
     """Process the route to get a single user."""
     status = 200
 
-    id_ = request.json.get('id', None)
-    username = request.json.get('username', None)
+    id_ = request.args.get('id', None)
+    username = request.args.get('username', None)
 
     user = None
     if id_:
