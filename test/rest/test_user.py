@@ -322,10 +322,9 @@ def test_user_get_user_not_found(app, client, auth_headers):
     with app.test_request_context():
         headers = auth_headers({'is_admin': True})
 
-        user_data = {'username': 'non-existing'}
-
-        response = client.get(url_for('rest.user_get'), json=user_data,
-                              headers=headers)
+        response = client.get(
+            url_for('rest.user_get', username='non-existing'),
+            headers=headers)
 
         assert response.status_code == 404
         assert 'User not found' in response.json.get('error_message')
