@@ -340,9 +340,7 @@ def test_user_get_user_id(app, client, auth_headers, add_user):
         # user that needs to be retrieved
         user_to_get = add_user('other_user', 'other_user@email.com')
 
-        user_data = {'id': user_to_get.id}
-
-        response = client.get(url_for('rest.user_get'), json=user_data,
+        response = client.get(url_for('rest.user_get', id=user_to_get.id),
                               headers=headers)
 
         assert response.status_code == 200
@@ -360,10 +358,9 @@ def test_user_get_user_username(app, client, auth_headers, add_user):
         # user that needs to be retrieved
         user_to_get = add_user('other_user', 'other_user@email.com')
 
-        user_data = {'username': user_to_get.username}
-
-        response = client.get(url_for('rest.user_get'), json=user_data,
-                              headers=headers)
+        response = client.get(
+            url_for('rest.user_get', username=user_to_get.username),
+            headers=headers)
 
         assert response.status_code == 200
         assert user_to_get.id == response.json.get('user_id')
