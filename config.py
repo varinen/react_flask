@@ -19,6 +19,8 @@ class Config(object):
 
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'development secret'
 
+    JWT_ERROR_MESSAGE_KEY = 'error_message'
+
     JWT_SECRET_KEY = SECRET_KEY
     JWT_ACCESS_TOKEN_EXPIRES_HRS = os.environ.get(
         'JWT_ACCESS_TOKEN_EXPIRES_HRS') or 2
