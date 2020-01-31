@@ -40,7 +40,8 @@ def user_create():
             result = dict(status=STATUS_ERROR, error_message=str(ex))
         return jsonify(result), status
 
-    return make_response(CONST_UNAUTHORISED, 401)
+    return jsonify(dict(status=STATUS_ERROR,
+                                error_message=CONST_UNAUTHORISED)), 401
 
 
 @bp.route('/user', methods=['PUT'])
@@ -62,8 +63,8 @@ def user_modify():
 
         user = get_user_by_username(get_jwt_identity())
         if user.id != user_to_edit.id and not claims['is_admin']:
-            return make_response(CONST_UNAUTHORISED, 401)
-
+            return jsonify(dict(status=STATUS_ERROR,
+                                error_message=CONST_UNAUTHORISED)), 401
         updated_user = modify_user(user_to_edit, modify)
         result = dict(user_id=updated_user.id, username=updated_user.username,
                       email=updated_user.email, is_admin=updated_user.is_admin)
@@ -98,7 +99,8 @@ def user_admin():
             raise ValueError('Cannot edit one\'s own admin status')
 
         if not claims['is_admin']:
-            return make_response(CONST_UNAUTHORISED, 401)
+            return jsonify(dict(status=STATUS_ERROR,
+                                error_message=CONST_UNAUTHORISED)), 401
 
         toggle_admin(user_to_edit, value)
         result = dict(user_id=user_to_edit.id, is_admin=user_to_edit.is_admin)
@@ -156,7 +158,8 @@ def user_delete():
             raise ValueError('Cannot delete one\'s own account')
 
         if not claims['is_admin']:
-            return make_response(CONST_UNAUTHORISED, 401)
+            return jsonify(dict(status=STATUS_ERROR,
+                                error_message=CONST_UNAUTHORISED)), 401
 
         db.session.delete(user_to_delete)
         db.session.commit()
