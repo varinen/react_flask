@@ -1,5 +1,7 @@
 """REST user API."""
 
+import json
+from json import JSONDecodeError
 import functools
 from datetime import datetime as dt
 from flask import make_response, request, current_app, jsonify
@@ -70,7 +72,7 @@ def user_create():
         return jsonify(result), status
 
     return jsonify(dict(status=STATUS_ERROR,
-                                error_message=CONST_UNAUTHORISED)), 401
+                        error_message=CONST_UNAUTHORISED)), 401
 
 
 @bp.route('/user', methods=['PUT'])
@@ -205,25 +207,39 @@ def user_delete():
 
 @bp.route('/users', methods=['GET'])
 @jwt_required
-@json_required
 def users_get():
-    """Process the route to get a single user."""
+    """Process the route to get multiple users."""
     status = 200
+    page = 1
+    per_page = USERS_PER_PAGE
+    filters = None
+    order = None
+    try:
+        filter_ = json.loads(request.args.get('filter'))
+        if 'page' in filter_:
+            page = filter_['page']
 
-    page = request.json.get('page', 1)
-    per_page = request.json.get('per_page', USERS_PER_PAGE)
-    filters = request.json.get('filters', None)
-    order = request.json.get('order', None)
+        if 'per_page' in filter_:
+            per_page = filter_['per_page']
 
-    users = get_users(page=page, per_page=per_page, filters=filters,
-                      order=order)
+        if 'filters' in filter_:
+            filters = filter_['filters']
 
-    user_list = list(map(lambda x: get_user_details(x), users.items))
+        if 'order' in filter_:
+            order = filter_['order']
 
-    required_attrs = ['has_next', 'has_prev', 'next_num', 'page', 'pages',
-                      'per_page', 'prev_num', 'total']
+        users = get_users(page=page, per_page=per_page, filters=filters,
+                          order=order)
 
-    result = {attr: getattr(users, attr) for attr in required_attrs}
-    result['user_list'] = user_list
+        user_list = list(map(lambda x: get_user_details(x), users.items))
 
-    return jsonify(result), status
+        required_attrs = ['has_next', 'has_prev', 'next_num', 'page', 'pages',
+                          'per_page', 'prev_num', 'total']
+
+        result = {attr: getattr(users, attr) for attr in required_attrs}
+        result['user_list'] = user_list
+    except JSONDecodeError as ex:
+        status = 500
+        result = dict(status=STATUS_ERROR, error_message=str(ex))
+
+    return jsonify(result), 200
