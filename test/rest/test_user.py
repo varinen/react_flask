@@ -512,3 +512,17 @@ def test_get_users_empty_list(app, client, auth_headers):
         assert response.json.get('total') == 0
         assert not response.json.get('prev_num')
         assert len(response.json.get('user_list')) == 0
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_get_users_json_error(app, client, auth_headers):
+    """Test fetching a user list with a malformed filter param."""
+    with app.test_request_context():
+        headers = auth_headers()
+
+        response = client.get(url_for('rest.users_get',
+                                      filter="invalid JSON"),
+                              headers=headers)
+
+        assert response.status_code == 500
+
