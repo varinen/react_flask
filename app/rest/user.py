@@ -214,4 +214,4 @@ def users_get():
         status = 500
         result = dict(status=STATUS_ERROR, error_message=str(ex))
 
-    return jsonify(result), 200
+    return jsonify(result), status
