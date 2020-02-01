@@ -1,5 +1,6 @@
 """Tests for the user REST module."""
 
+import json
 import pytest
 from flask import url_for
 from app.user.models import get_user_by_username
@@ -445,7 +446,8 @@ def test_get_users_no_filter(app, client, auth_headers, add_ten_users):
         add_ten_users()
         req_data = dict(page=2, per_page=3)
 
-        response = client.get(url_for('rest.users_get'), json=req_data,
+        response = client.get(url_for('rest.users_get',
+                                      filter=json.dumps(req_data)),
                               headers=headers)
 
         assert response.status_code == 200
@@ -472,7 +474,8 @@ def test_get_users_filter_id(app, client, auth_headers, add_ten_users):
         req_data = dict(page=1, per_page=5,
                         filters=[dict(column='id', type='geq', value=5)])
 
-        response = client.get(url_for('rest.users_get'), json=req_data,
+        response = client.get(url_for('rest.users_get',
+                                      filter=json.dumps(req_data)),
                               headers=headers)
 
         assert response.status_code == 200
@@ -496,7 +499,8 @@ def test_get_users_empty_list(app, client, auth_headers):
                         filters=[dict(column='username', type='like',
                                       value='non-existing')])
 
-        response = client.get(url_for('rest.users_get'), json=req_data,
+        response = client.get(url_for('rest.users_get',
+                                      filter=json.dumps(req_data)),
                               headers=headers)
 
         assert response.status_code == 200
