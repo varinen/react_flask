@@ -458,7 +458,7 @@ def test_get_users_no_filter(app, client, auth_headers, add_ten_users):
         assert response.json.get('pages') == 4
         assert response.json.get('prev_num') == 1
         assert response.json.get('total') == 11
-        assert len(response.json.get('user_list')) == 3
+        assert len(response.json.get('entity_list')) == 3
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')
@@ -486,7 +486,7 @@ def test_get_users_filter_id(app, client, auth_headers, add_ten_users):
         assert response.json.get('pages') == 2
         assert response.json.get('total') == 7
         assert not response.json.get('prev_num')
-        assert len(response.json.get('user_list')) == 5
+        assert len(response.json.get('entity_list')) == 5
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')
@@ -511,7 +511,7 @@ def test_get_users_empty_list(app, client, auth_headers):
         assert response.json.get('pages') == 0
         assert response.json.get('total') == 0
         assert not response.json.get('prev_num')
-        assert len(response.json.get('user_list')) == 0
+        assert len(response.json.get('entity_list')) == 0
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')

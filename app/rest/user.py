@@ -237,7 +237,7 @@ def users_get():
                           'per_page', 'prev_num', 'total']
 
         result = {attr: getattr(users, attr) for attr in required_attrs}
-        result['user_list'] = user_list
+        result['entity_list'] = user_list
     except JSONDecodeError as ex:
         status = 500
         result = dict(status=STATUS_ERROR, error_message=str(ex))
