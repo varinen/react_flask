@@ -54,4 +54,8 @@ def get_entities(entity_class: db.Model, page: int, per_page: int,
         entities = entities.order_by(
             getattr(entity_class, order['column']).asc())
 
+    entity_length = len(entities.all())
+    if entity_length < (page - 1) * per_page + 1:
+        page = entity_length // per_page + 1
+
     return entities.paginate(page, per_page, False)
