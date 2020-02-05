@@ -99,8 +99,9 @@ def test_filter_users_like(app, add_ten_users):
     with app.app_context():
         add_ten_users()
         users = User.query
-        users = apply_filter(users, User, {'column': 'username', 'type': 'like',
-                                           'value': '%name_1%'})
+        users = apply_filter(users, User,
+                             {'column': 'username', 'type': 'like',
+                              'value': '%name_1%'})
         result = users.all()
         assert len(result) == 1
 
@@ -146,7 +147,8 @@ def test_get_users_ten_filter_id(app, add_ten_users):
     with app.app_context():
         add_ten_users()
         filters = [dict(column='id', type='geq', value=5)]
-        users = get_entities(User, 2, 3, filters, dict(column='id', dir='desc'))
+        users = get_entities(User, 2, 3, filters,
+                             dict(column='id', dir='desc'))
         assert len(users.items) == 3
         assert not users.has_next
         assert users.has_prev
@@ -162,3 +164,21 @@ def test_get_entities_note_no_filter_default_sort(app):
         assert notes.per_page == 5
         assert 'ORDER BY notes.id ASC' in str(notes.query.statement)
         assert notes.query.whereclause is None
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_get_entities_invalid_page_default_sort(app, add_ten_users):
+    """Test getting a paged list with a correct page when the requested page
+    is too high."""
+    with app.app_context():
+        add_ten_users()
+        filters = []
+        """Ten users, 3 per page. Max possible page count 4. 
+        Call page 5 and receive page 4."""
+        users = get_entities(User, 5, 3, filters,
+                             dict(column='id', dir='desc'))
+        assert len(users.items) == 1
+        assert users.page == 4
+        assert not users.has_next
+        assert users.has_prev
+        assert users.total == 10
