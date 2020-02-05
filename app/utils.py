@@ -47,12 +47,16 @@ def get_entities(entity_class: db.Model, page: int, per_page: int,
     for filter_ in filters:
         entities = apply_filter(entities, entity_class, filter_)
 
+    column = order['column']
+    if column.find("ts_") == 0:
+        column = column.replace("ts_", "", 1)
+
     if order['dir'] == 'desc':
         entities = entities.order_by(
-            getattr(entity_class, order['column']).desc())
+            getattr(entity_class, column).desc())
     else:
         entities = entities.order_by(
-            getattr(entity_class, order['column']).asc())
+            getattr(entity_class, column).asc())
 
     entity_length = len(entities.all())
     if entity_length < (page - 1) * per_page + 1:

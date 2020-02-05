@@ -182,3 +182,16 @@ def test_get_entities_invalid_page_default_sort(app, add_ten_users):
         assert not users.has_next
         assert users.has_prev
         assert users.total == 10
+
+
+@pytest.mark.usefixtures('clean_up_existing_users')
+def test_get_users_ten_filter_ts_created_at(app, add_ten_users):
+    """Test getting a paged list of users filtered by ts_created_at."""
+    with app.app_context():
+        add_ten_users()
+        filters = [dict(column='id', type='geq', value=5)]
+        users = get_entities(User, 2, 3, filters,
+                             dict(column='ts_created_at', dir='desc'))
+        assert str(users.query._order_by[0]) == 'users.created_at DESC'
+        assert len(users.items) == 3
+        assert users.total == 6
