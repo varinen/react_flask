@@ -1,7 +1,24 @@
 """Utils module."""
 
+import datetime
 from flask_sqlalchemy import BaseQuery
 from app import db
+
+
+def strip_column_prefix(column):
+    """Strip the column prefix ts_."""
+    if column.find("ts_") == 0:
+        column = column.replace("ts_", "", 1)
+    return column
+
+
+def process_filter_value(filter_):
+    """Process filter values: identify timestamps and convert to datetime."""
+    value = filter_['value']
+    if filter_['column'].find("ts_") == 0:
+        value = datetime.datetime.fromtimestamp(value)
+
+    return value
 
 
 def apply_filter(query: BaseQuery, model: db.Model, filter_: dict):
@@ -20,17 +37,19 @@ def apply_filter(query: BaseQuery, model: db.Model, filter_: dict):
     """
 
     if 'column' in filter_ and 'value' in filter_ and 'type' in filter_:
+        column = strip_column_prefix(filter_['column'])
+        value = process_filter_value(filter_)
+
         if filter_['type'] == 'like':
             query = query.filter(
-                getattr(model, filter_['column']).like(
-                    "%{}%".format(str(filter_['value']))))
+                getattr(model, column).like("%{}%".format(str(value))))
+
         if filter_['type'] == 'eq':
-            query = query.filter(getattr(model, filter_['column']) ==
-                                 filter_['value'])
+            query = query.filter(getattr(model, column) == value)
+
         if filter_['type'] == 'geq':
-            query = query.filter(
-                getattr(model, filter_['column']) >= filter_['value'])
+            query = query.filter(getattr(model, column) >= value)
+
         if filter_['type'] == 'leq':
-            query = query.filter(
-                getattr(model, filter_['column']) <= filter_['value'])
+            query = query.filter(getattr(model, column) <= value)
     return query
