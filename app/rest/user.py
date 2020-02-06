@@ -198,12 +198,12 @@ def users_get():
         if 'filters' in filter_:
             filters = filter_['filters']
 
-
         if 'order' in filter_:
             order = filter_['order']
 
-        users = get_entities(User, page=page, per_page=per_page, filters=filters,
-                     order=order)
+        users = get_entities(User, page=page, per_page=per_page,
+                             filters=filters,
+                             order=order)
 
         user_list = list(map(lambda x: get_user_details(x), users.items))
         required_attrs = ['has_next', 'has_prev', 'next_num', 'page', 'pages',
