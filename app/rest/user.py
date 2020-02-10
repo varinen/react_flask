@@ -107,7 +107,8 @@ def user_admin():
                                 error_message=CONST_UNAUTHORISED)), 401
 
         toggle_admin(user_to_edit, value)
-        result = dict(user_id=user_to_edit.id, is_admin=user_to_edit.is_admin)
+        result = dict(username=user_to_edit.username,
+                      is_admin=user_to_edit.is_admin)
 
     except ValueError as ex:
         current_app.logger.error(str(ex))
