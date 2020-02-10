@@ -1,19 +1,9 @@
 """Tests for the Auth module."""
 
 import pytest
-import datetime
 
 from flask import url_for
-from app.rest.auth import CONST_LOGIN_MSG, get_expiry_date
-
-
-def test_get_expiry_date():
-    now = datetime.datetime.strptime('2019-01-01 00:00:00',
-                                     "%Y-%m-%d %H:%M:%S")
-    delta = 10
-    res = get_expiry_date(delta, now)
-    assert res == datetime.datetime.strptime('2019-01-01 10:00:00',
-                                             "%Y-%m-%d %H:%M:%S")
+from app.rest.auth import CONST_LOGIN_MSG
 
 
 def test_auth_login_no_json(app, client):
