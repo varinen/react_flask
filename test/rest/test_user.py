@@ -304,7 +304,7 @@ def test_user_admin_modify_admin(app, client, auth_headers, add_user):
                               headers=headers)
 
         assert response.status_code == 200
-        assert response.json.get('user_id') == user_to_edit.id
+        assert response.json.get('username') == user_to_edit.username
         assert response.json.get('is_admin')
 
         user_data = dict(username=user_to_edit.username, value=False)
@@ -313,7 +313,7 @@ def test_user_admin_modify_admin(app, client, auth_headers, add_user):
                               headers=headers)
 
         assert response.status_code == 200
-        assert response.json.get('user_id') == user_to_edit.id
+        assert response.json.get('username') == user_to_edit.username
         assert response.json.get('is_admin') == False
 
 
