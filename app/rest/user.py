@@ -70,7 +70,7 @@ def user_create():
         return jsonify(result), status
 
     return jsonify(dict(status=STATUS_ERROR,
-                                error_message=CONST_UNAUTHORISED)), 401
+                        error_message=CONST_UNAUTHORISED)), 401
 
 
 @bp.route('/user', methods=['PUT'])
@@ -132,7 +132,8 @@ def user_admin():
                                 error_message=CONST_UNAUTHORISED)), 401
 
         toggle_admin(user_to_edit, value)
-        result = dict(user_id=user_to_edit.id, is_admin=user_to_edit.is_admin)
+        result = dict(username=user_to_edit.username,
+                      is_admin=user_to_edit.is_admin)
 
     except ValueError as ex:
         current_app.logger.error(str(ex))
