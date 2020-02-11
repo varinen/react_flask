@@ -129,7 +129,7 @@ def modify_user(user: User, values: dict) -> User:
             if not check_user or check_user.id == user.id:
                 user.username = value
             else:
-                raise ValueError(f'Username {value} is invalid')
+                raise ValueError(f'Username {value} is taken')
 
         elif _property == 'email':
             try:
@@ -143,7 +143,7 @@ def modify_user(user: User, values: dict) -> User:
             if not check_user or check_user.id == user.id:
                 user.email = value
             else:
-                raise ValueError(f'Email {value} is invalid')
+                raise ValueError(f'Email {value} is taken')
 
         elif _property == 'password':
             user.set_password(value)
