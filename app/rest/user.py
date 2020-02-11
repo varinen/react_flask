@@ -2,9 +2,7 @@
 
 import json
 from json import JSONDecodeError
-import functools
-from datetime import datetime as dt
-from flask import make_response, request, current_app, jsonify
+from flask import request, current_app, jsonify
 
 from flask_jwt_extended import (
     get_jwt_identity,
