@@ -48,6 +48,7 @@ def test_auth_login_valid_user_valid_pwd(app, client, add_user):
         assert 'refresh_token' in response.json
         assert 'access_expires' in response.json
         assert 'refresh_expires' in response.json
+        assert 'user' in response.json
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')
@@ -71,3 +72,4 @@ def test_auth_login_refresh_token(app, client, add_user):
         assert 'access_expires' in response.json
         assert 'refresh_token' in response.json
         assert 'refresh_expires' in response.json
+        assert 'user' in response.json
