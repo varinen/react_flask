@@ -40,6 +40,7 @@ def test_modify_username_invalid(app, add_user):
         app.cli.commands['user'].commands['modify-username'],
         [username, invalid_username])
 
+    print(result.output)
     assert f'Username cannot be empty' in result.output
 
 

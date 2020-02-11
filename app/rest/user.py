@@ -16,8 +16,16 @@ from app import db
 from app.utils import get_entities
 from app.rest.blueprint import json_required
 from app.rest import bp
-from app.user.models import get_user_by_username, create_user, modify_user, \
-    User, toggle_admin, USERS_PER_PAGE, get_user_details
+
+from app.user.models import (
+    get_user_by_username,
+    create_user,
+    modify_user,
+    User,
+    toggle_admin,
+    USERS_PER_PAGE,
+    get_user_details
+)
 
 CONST_UNAUTHORISED = 'Missing permissions'
 STATUS_ERROR = 'error'
