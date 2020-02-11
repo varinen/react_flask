@@ -7,7 +7,7 @@ from flask_jwt_extended import create_access_token, create_refresh_token, \
 
 from flask_jwt_extended.config import config as jwt_config
 
-from flask import request, make_response, jsonify, current_app
+from flask import request, make_response, jsonify
 
 from app import db
 from app.rest import bp
