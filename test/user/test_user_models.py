@@ -178,7 +178,7 @@ def test_modify_user_username_empty(app, add_user):
         # Update using an empty value
         with pytest.raises(ValueError) as err:
             modify_user(user, {'username': ''})
-        assert str(err.value) == f'Username  is invalid'
+        assert str(err.value) == f'Username cannot be empty'
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')
