@@ -192,7 +192,7 @@ def test_modify_user_username_taken(app, add_user):
         # Update using a taken username
         with pytest.raises(ValueError) as err:
             modify_user(user, {'username': other_user.username})
-        assert str(err.value) == f'Username {other_user.username} is invalid'
+        assert str(err.value) == f'Username {other_user.username} is taken'
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')
@@ -218,7 +218,7 @@ def test_modify_user_email_taken(app, add_user):
         # Update using a taken email
         with pytest.raises(ValueError) as err:
             modify_user(user, {'email': other_user.email})
-        assert str(err.value) == f'Email {other_user.email} is invalid'
+        assert str(err.value) == f'Email {other_user.email} is taken'
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')

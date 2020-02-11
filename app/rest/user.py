@@ -2,9 +2,7 @@
 
 import json
 from json import JSONDecodeError
-import functools
-from datetime import datetime as dt
-from flask import make_response, request, current_app, jsonify
+from flask import request, current_app, jsonify
 
 from flask_jwt_extended import (
     get_jwt_identity,
@@ -16,8 +14,16 @@ from app import db
 from app.utils import get_entities
 from app.rest.blueprint import json_required
 from app.rest import bp
-from app.user.models import get_user_by_username, create_user, modify_user, \
-    User, toggle_admin, USERS_PER_PAGE, get_user_details
+
+from app.user.models import (
+    get_user_by_username,
+    create_user,
+    modify_user,
+    User,
+    toggle_admin,
+    USERS_PER_PAGE,
+    get_user_details
+)
 
 CONST_UNAUTHORISED = 'Missing permissions'
 STATUS_ERROR = 'error'
