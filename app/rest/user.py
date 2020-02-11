@@ -12,8 +12,13 @@ from flask_jwt_extended import (
 
 from app import db
 from app.rest import bp
-from app.user.models import get_user_by_username, create_user, modify_user, \
-    User, toggle_admin
+from app.user.models import (
+    get_user_by_username,
+    create_user,
+    modify_user,
+    User,
+    toggle_admin
+)
 
 CONST_UNAUTHORISED = 'Missing permissions'
 STATUS_ERROR = 'error'

@@ -17,7 +17,6 @@ CONST_LOGIN_MSG = 'Could not verify'
 CONST_REALM_MSG = 'Please login'
 
 
-
 @bp.route('/auth/login', methods=['POST'])
 def login():
     """Process the login POST request."""

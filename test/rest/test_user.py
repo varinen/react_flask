@@ -313,7 +313,7 @@ def test_user_admin_modify_admin(app, client, auth_headers, add_user):
 
         assert response.status_code == 200
         assert response.json.get('username') == user_to_edit.username
-        assert response.json.get('is_admin') == False
+        assert not response.json.get('is_admin')
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')
