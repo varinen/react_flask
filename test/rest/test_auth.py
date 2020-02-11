@@ -72,3 +72,4 @@ def test_auth_login_refresh_token(app, client, add_user):
         assert 'access_expires' in response.json
         assert 'refresh_token' in response.json
         assert 'refresh_expires' in response.json
+        assert 'user' in response.json
