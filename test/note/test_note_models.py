@@ -214,8 +214,8 @@ def test_get_note_details():
 
     details = get_note_details(note)
     assert details['created_by'] == 1
-    assert details['created_at'] == now.timestamp()
-    assert details['last_modified'] == now.timestamp()
+    assert details['ts_created_at'] == now.timestamp()
+    assert details['ts_last_modified'] == now.timestamp()
     assert details['version_num'] == 2
     assert len(details['version_list']) == 1
     assert '1' in details['version_list'].keys()
