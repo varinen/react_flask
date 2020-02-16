@@ -28,6 +28,16 @@ class Note(db.Model):
 
     author = db.relationship('User', backref='author')
 
+    @property
+    def ts_created_at(self) -> float:
+        """Return the timestamp of the created time."""
+        return self.created_at.timestamp()
+
+    @property
+    def ts_last_modified(self) -> float:
+        """Return the timestamp of the last_modified time."""
+        return self.last_modified.timestamp()
+
     _old_data = None
 
     def __repr__(self) -> str:
