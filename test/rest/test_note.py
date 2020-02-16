@@ -225,11 +225,9 @@ def test_note_get_single(app, client, add_note, auth_headers):
         note_id = note.id
 
     with app.test_request_context():
-        note_data = dict(id=note_id)
-
         headers = auth_headers()
 
-        response = client.get(url_for('rest.note_get'), json=note_data,
+        response = client.get(url_for('rest.note_get', id=note_id),
                               headers=headers)
 
         expected_keys = ['id', 'created_by', 'created_at', 'last_modified',

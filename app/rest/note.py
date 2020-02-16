@@ -105,15 +105,15 @@ def note_delete():
     return jsonify(result), status
 
 
-@bp.route('/note', methods=['GET'])
+@bp.route('/note', methods=['GET', 'OPTIONS'])
 @jwt_required
-@json_required
 def note_get():
     """Process the route for to get a single note."""
     status = 200
 
+    note_id = request.args.get('id', None)
+
     try:
-        note_id = request.json.get('id', None)
         note = Note.query.get(note_id)
         if not note:
             raise ValueError('Invalid note')
