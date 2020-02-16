@@ -18,7 +18,7 @@ def test_note_create(app, client, auth_headers):
         response = client.post(url_for('rest.note_create'), json=note_data,
                                headers=headers)
 
-        note_id = response.json.get('note_id')
+        note_id = response.json.get('id')
         assert response.status_code == 200
         assert note_id > 0
     with app.app_context():
@@ -79,7 +79,7 @@ def test_note_update(app, client, add_note, auth_headers):
         response = client.put(url_for('rest.note_update'), json=note_data,
                               headers=headers)
 
-        note_id = response.json.get('note_id')
+        note_id = response.json.get('id')
         assert response.status_code == 200
         assert note_id > 0
     with app.app_context():
