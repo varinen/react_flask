@@ -138,7 +138,7 @@ def get_note_details(note: Note) -> dict:
         text=note.text,
         created_by=note.created_by,
         version_num=note.version_num,
-        created_at=note.created_at.timestamp(),
-        last_modified=note.last_modified.timestamp(),
+        ts_created_at=note.ts_created_at,
+        ts_last_modified=note.ts_last_modified,
         version_list=note.version_list
     )
