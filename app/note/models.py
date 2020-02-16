@@ -132,8 +132,13 @@ def validate_note(creator: db.Model, title: str) -> bool:
 
 def get_note_details(note: Note) -> dict:
     """Return a dict of note properties."""
+    username = "system"
+    if note.author:
+        username = note.author.username
+
     return dict(
         id=note.id,
+        username=username,
         title=note.title,
         text=note.text,
         created_by=note.created_by,

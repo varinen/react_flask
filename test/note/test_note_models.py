@@ -214,6 +214,7 @@ def test_get_note_details():
 
     details = get_note_details(note)
     assert details['created_by'] == 1
+    assert details['username'] == "system"
     assert details['ts_created_at'] == now.timestamp()
     assert details['ts_last_modified'] == now.timestamp()
     assert details['version_num'] == 2
