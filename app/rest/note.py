@@ -30,7 +30,7 @@ def note_create():
         db.session.add(note)
         db.session.commit()
 
-        result = dict(note_id=note.id)
+        result = get_note_details(note)
     except ValueError as ex:
         status = 500
         result = dict(error_message=str(ex))
@@ -65,7 +65,7 @@ def note_update():
         db.session.add(note)
         db.session.commit()
 
-        result = dict(note_id=note.id)
+        result = get_note_details(note)
     except ValueError as ex:
         status = 500
         result = dict(error_message=str(ex))
