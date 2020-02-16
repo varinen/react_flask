@@ -230,8 +230,9 @@ def test_note_get_single(app, client, add_note, auth_headers):
         response = client.get(url_for('rest.note_get', id=note_id),
                               headers=headers)
 
-        expected_keys = ['id', 'created_by', 'created_at', 'last_modified',
-                         'title', 'text', 'version_num', 'version_list']
+        expected_keys = ['id', 'created_by', 'ts_created_at',
+                         'ts_last_modified', 'title', 'text', 'version_num',
+                         'version_list']
         assert response.status_code == 200
         for key in expected_keys:
             assert key in response.json

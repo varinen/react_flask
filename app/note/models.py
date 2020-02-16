@@ -28,6 +28,16 @@ class Note(db.Model):
 
     author = db.relationship('User', backref='author')
 
+    @property
+    def ts_created_at(self) -> float:
+        """Return the timestamp of the created time."""
+        return self.created_at.timestamp()
+
+    @property
+    def ts_last_modified(self) -> float:
+        """Return the timestamp of the last_modified time."""
+        return self.last_modified.timestamp()
+
     _old_data = None
 
     def __repr__(self) -> str:
@@ -128,7 +138,7 @@ def get_note_details(note: Note) -> dict:
         text=note.text,
         created_by=note.created_by,
         version_num=note.version_num,
-        created_at=note.created_at.timestamp(),
-        last_modified=note.last_modified.timestamp(),
+        ts_created_at=note.ts_created_at,
+        ts_last_modified=note.ts_last_modified,
         version_list=note.version_list
     )
