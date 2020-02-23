@@ -1,5 +1,6 @@
 """Tests for the Note REST module."""
 
+import json
 import pytest
 from flask import url_for
 from sqlalchemy.exc import SQLAlchemyError
@@ -261,7 +262,8 @@ def test_get_notes_no_filter(app, client, auth_headers, add_ten_notes):
         add_ten_notes()
         req_data = dict(page=2, per_page=3)
 
-        response = client.get(url_for('rest.notes_get'), json=req_data,
+        response = client.get(url_for('rest.notes_get',
+                                      filter=json.dumps(req_data)),
                               headers=headers)
 
         assert response.status_code == 200
@@ -272,7 +274,7 @@ def test_get_notes_no_filter(app, client, auth_headers, add_ten_notes):
         assert response.json.get('pages') == 4
         assert response.json.get('prev_num') == 1
         assert response.json.get('total') == 10
-        assert len(response.json.get('note_list')) == 3
+        assert len(response.json.get('entity_list')) == 3
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')
@@ -285,7 +287,8 @@ def test_get_notes_filter_id(app, client, auth_headers, add_ten_notes):
         req_data = dict(page=1, per_page=5,
                         filters=[dict(column='id', type='geq', value=5)])
 
-        response = client.get(url_for('rest.notes_get'), json=req_data,
+        response = client.get(url_for('rest.notes_get',
+                                      filter=json.dumps(req_data)),
                               headers=headers)
 
         assert response.status_code == 200
@@ -296,7 +299,7 @@ def test_get_notes_filter_id(app, client, auth_headers, add_ten_notes):
         assert response.json.get('pages') == 2
         assert response.json.get('total') == 6
         assert not response.json.get('prev_num')
-        assert len(response.json.get('note_list')) == 5
+        assert len(response.json.get('entity_list')) == 5
 
 
 @pytest.mark.usefixtures('clean_up_existing_users')
@@ -309,7 +312,8 @@ def test_get_notes_empty_list(app, client, auth_headers):
                         filters=[dict(column='title', type='like',
                                       value='non-existing')])
 
-        response = client.get(url_for('rest.notes_get'), json=req_data,
+        response = client.get(url_for('rest.notes_get',
+                                      filter=json.dumps(req_data)),
                               headers=headers)
 
         assert response.status_code == 200
@@ -320,4 +324,4 @@ def test_get_notes_empty_list(app, client, auth_headers):
         assert response.json.get('pages') == 0
         assert response.json.get('total') == 0
         assert not response.json.get('prev_num')
-        assert len(response.json.get('note_list')) == 0
+        assert len(response.json.get('entity_list')) == 0

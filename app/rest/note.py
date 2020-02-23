@@ -1,5 +1,7 @@
 """REST Note API."""
 
+import json
+from json import JSONDecodeError
 from flask import request, current_app, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -11,6 +13,7 @@ from app.note.models import Note, validate_note, get_note_details
 from app.user.models import get_user_by_username
 
 NOTES_PER_PAGE = 10
+STATUS_ERROR = 'error'
 
 
 @bp.route('/note', methods=['POST'])
@@ -129,23 +132,40 @@ def note_get():
 
 @bp.route('/notes', methods=['GET'])
 @jwt_required
-@json_required
 def notes_get():
     """Process the route to get multiple notes."""
-    page = request.json.get('page', 1)
-    per_page = request.json.get('per_page', NOTES_PER_PAGE)
-    filters = request.json.get('filters', None)
-    order = request.json.get('order', None)
+    status = 200
+    page = 1
+    per_page = NOTES_PER_PAGE
+    filters = None
+    order = None
 
-    notes = get_entities(Note, page=page, per_page=per_page, filters=filters,
-                         order=order)
+    try:
+        filter_ = json.loads(request.args.get('filter'))
+        if 'page' in filter_:
+            page = filter_['page']
 
-    note_list = list(map(lambda x: get_note_details(x), notes.items))
+        if 'per_page' in filter_:
+            per_page = filter_['per_page']
 
-    required_attrs = ['has_next', 'has_prev', 'next_num', 'page', 'pages',
-                      'per_page', 'prev_num', 'total']
+        if 'filters' in filter_:
+            filters = filter_['filters']
 
-    result = {attr: getattr(notes, attr) for attr in required_attrs}
-    result['note_list'] = note_list
+        if 'order' in filter_:
+            order = filter_['order']
 
-    return jsonify(result), 200
+        notes = get_entities(Note, page=page, per_page=per_page,
+                             filters=filters,
+                             order=order)
+
+        note_list = list(map(lambda x: get_note_details(x), notes.items))
+        required_attrs = ['has_next', 'has_prev', 'next_num', 'page', 'pages',
+                          'per_page', 'prev_num', 'total']
+
+        result = {attr: getattr(notes, attr) for attr in required_attrs}
+        result['entity_list'] = note_list
+    except JSONDecodeError as ex:
+        status = 500
+        result = dict(status=STATUS_ERROR, error_message=str(ex))
+
+    return jsonify(result), status
